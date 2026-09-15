@@ -2,12 +2,12 @@
 
 ## プロジェクト本体
 
-2026-09-16時点では、このリポジトリのコード、文書、架空fixtureに対する
-オープンソースライセンスを選択していない。公開リポジトリとして閲覧できること自体は、
-適用法令又はGitHubの利用条件を超える再利用許諾を意味しない。
+このリポジトリのうち、本プロジェクトが作成したコード、文書、架空fixtureは
+[MIT License](LICENSE)で提供する。著作権表示は`Copyright (c) 2026 adokoy001`。
 
-ライセンスを後から追加する場合も、次の第三者由来データにはそのライセンスを一律に
-適用しない。
+次に列挙するe-Gov由来の4ファイルは、本プロジェクトのMIT Licenseの適用対象外とし、
+本プロジェクトからMITとして再許諾しない。これらにはe-Govの利用規約、PDL1.0、
+その他の適用法令・権利条件が適用される。
 
 ## e-Gov法令API由来の刑法snapshot
 
@@ -24,6 +24,7 @@
 - [e-Gov法令API v2・法令XML](https://laws.e-gov.go.jp/api/2/law_file/xml/140AC0000000045_20260521_507AC0000000039)
 - [e-Gov法令API v2・法令metadata](https://laws.e-gov.go.jp/api/2/law_data/140AC0000000045_20260521_507AC0000000039)
 - [e-Govポータル利用規約](https://www.e-gov.go.jp/terms)
+- [公共データ利用規約（第1.0版、PDL1.0）](https://www.digital.go.jp/resources/open_data/public_data_license_v1.0)
 
 取得日時は`2026-09-15T12:13:54Z`。`raw/`の2ファイルは取得した応答bytesを保存したもの、
 `derived/`の2ファイルは本プロジェクトの`xml-unit-text/2` profileで本則41条を抽出・加工して

@@ -6,7 +6,7 @@
 
 > **用途上の注意:** 趣味・研究用の検証支援プロジェクトであり、法律相談や現実の法的判断を提供しない。結果は、明示した有限モデル、原文版、解釈、仮定の範囲に限られる。
 
-第三者由来データとライセンスの状態は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照。
+本プロジェクトが作成したコード、文書、架空fixtureは[MIT License](LICENSE)で提供する。第三者由来データには別の条件が適用されるため、[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)も参照。
 
 **自前検証カーネル v0.1、原文package v0.1、手書き解釈IR v0.1、段階別到達可能性診断 v0.1に加え、T08の有限規範検証カーネル v0.1が動く。T06固定合成ベンチマーク、T07刑法41条の限定的手書き解釈pack、T08架空規範fixtureを保存した。** 手書きの有限モデルを全列挙し、結論の衝突、必要な結論が出ない条件、改定差分、規則の発火・抑止範囲を調べる。形式化前の原文はraw bytes、版、抽出文、構造位置を固定し、非信頼の解釈候補、ホスト管理のreview・scope期待、既存Coreへの決定的変換を別々の入力として保存できる。段階別診断ではguard、facts、constraints、override後の件数と最初のwitnessを分け、外部hash付きscope期待と照合する。各経路のproducerとは別のcheckerが証拠やCore・来歴をoffline再構成する。Python標準ライブラリだけを使い、既成ソルバー・APIキー・追加インストールは不要。保存済みモデル・原文・解釈packageの再検査はnetwork不要で、e-Govから新しく取得するコマンドだけがnetworkを使う。
 

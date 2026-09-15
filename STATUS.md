@@ -4,6 +4,8 @@
 
 公開先: [GitHub / adokoy001/rule-formalization-lab](https://github.com/adokoy001/rule-formalization-lab)
 
+ライセンス: [MIT License](LICENSE)（e-Gov由来データは[第三者由来データの通知](THIRD_PARTY_NOTICES.md)を参照）
+
 ## 目標
 
 趣味として、現実的な範囲のルールを検証し、穴や不整合に気づく支援ツールを育てる。架空規約を徐々に大きくし、刑法・刑事訴訟法の限定論点、条文群、章へ段階的に広げる。
