@@ -2,6 +2,8 @@
 
 更新日: 2026-09-16
 
+公開先: [GitHub / adokoy001/rule-formalization-lab](https://github.com/adokoy001/rule-formalization-lab)
+
 ## 目標
 
 趣味として、現実的な範囲のルールを検証し、穴や不整合に気づく支援ツールを育てる。架空規約を徐々に大きくし、刑法・刑事訴訟法の限定論点、条文群、章へ段階的に広げる。
