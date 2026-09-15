@@ -1,0 +1,155 @@
+{
+  "coverage": [
+    {
+      "issue_ids": [],
+      "provision_ids": [
+        "P_ADULT_MEMBER"
+      ],
+      "source_unit_id": "c149dfa6fc427a6ca039ddcaa320a9630c8dcf2e66aa53913f13160a1441674c"
+    },
+    {
+      "issue_ids": [],
+      "provision_ids": [
+        "P_SUSPENSION_EXCEPTION"
+      ],
+      "source_unit_id": "2e3f2b3a4ee289ea39cf9ab611fa88f6ee186cdc3a736fdc3c147607b1501fa7"
+    }
+  ],
+  "format": "rule-interpretation-candidate/1",
+  "proposed_assumptions": [
+    {
+      "id": "A_AGE_AT_EVALUATION",
+      "text": "入力ageは評価時点について既に認定された満年齢であり、年齢計算自体はこのpackで行わない。"
+    }
+  ],
+  "proposed_tests": [
+    {
+      "expected": {
+        "eligible": {
+          "state": "absent"
+        }
+      },
+      "id": "C_UNDER_18",
+      "input": {
+        "age": 17,
+        "registered": true,
+        "suspended": false
+      }
+    },
+    {
+      "expected": {
+        "eligible": {
+          "state": "defined",
+          "value": true
+        }
+      },
+      "id": "C_AT_18",
+      "input": {
+        "age": 18,
+        "registered": true,
+        "suspended": false
+      }
+    },
+    {
+      "expected": {
+        "eligible": {
+          "state": "defined",
+          "value": false
+        }
+      },
+      "id": "C_SUSPENDED",
+      "input": {
+        "age": 18,
+        "registered": true,
+        "suspended": true
+      }
+    }
+  ],
+  "provisions": [
+    {
+      "assumption_ids": [
+        "A_AGE_AT_EVALUATION"
+      ],
+      "condition_role": "sufficient_trigger",
+      "id": "P_ADULT_MEMBER",
+      "issue_ids": [],
+      "kind": "decision_rule",
+      "overrides": [],
+      "reference_ids": [],
+      "source_quotes": [
+        {
+          "exact": "第1条 登録者で18歳以上の者は会員資格を持つ。",
+          "source_unit_id": "c149dfa6fc427a6ca039ddcaa320a9630c8dcf2e66aa53913f13160a1441674c"
+        }
+      ],
+      "source_unit_ids": [
+        "c149dfa6fc427a6ca039ddcaa320a9630c8dcf2e66aa53913f13160a1441674c"
+      ],
+      "then": {
+        "output": "eligible",
+        "value": true
+      },
+      "when": {
+        "args": [
+          {
+            "var": "registered"
+          },
+          {
+            "args": [
+              {
+                "var": "age"
+              },
+              {
+                "const": 18
+              }
+            ],
+            "op": "ge"
+          }
+        ],
+        "op": "and"
+      }
+    },
+    {
+      "assumption_ids": [],
+      "condition_role": "sufficient_trigger",
+      "id": "P_SUSPENSION_EXCEPTION",
+      "issue_ids": [],
+      "kind": "exception",
+      "overrides": [
+        "P_ADULT_MEMBER"
+      ],
+      "reference_ids": [
+        "REF_PREVIOUS"
+      ],
+      "source_quotes": [
+        {
+          "exact": "第2条 前条にかかわらず、利用停止中の者は会員資格を持たない。",
+          "source_unit_id": "2e3f2b3a4ee289ea39cf9ab611fa88f6ee186cdc3a736fdc3c147607b1501fa7"
+        }
+      ],
+      "source_unit_ids": [
+        "2e3f2b3a4ee289ea39cf9ab611fa88f6ee186cdc3a736fdc3c147607b1501fa7"
+      ],
+      "then": {
+        "output": "eligible",
+        "value": false
+      },
+      "when": {
+        "var": "suspended"
+      }
+    }
+  ],
+  "references": [
+    {
+      "from_source_unit_id": "2e3f2b3a4ee289ea39cf9ab611fa88f6ee186cdc3a736fdc3c147607b1501fa7",
+      "literal": "前条",
+      "reference_id": "REF_PREVIOUS",
+      "status": "resolved",
+      "target_provision_id": "P_ADULT_MEMBER"
+    }
+  ],
+  "source_unit_manifest_sha256": "800acf9358ff61cf7aecac2e433a011e4eb4bce400b5b23e5ac11c88757f0531",
+  "task_hash": "27d0f6dfceed5dd86c8bdc6392760e0e5f47b8bdc5165ec1ddbeda13f24dfe16",
+  "task_id": "member_eligibility_t05",
+  "unresolved_issues": []
+}

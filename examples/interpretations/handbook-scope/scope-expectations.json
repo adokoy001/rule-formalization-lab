@@ -1,0 +1,29 @@
+{
+  "candidate_hash": "02c8d88521f37dfc66cd9b073a364a5ffcb0ef13cda4096f2a57f8bdb81fa69d",
+  "core_model_hash": "3baed24f29c0822257db9e12920fbc75be2852b99d99e8f588b1d1bcb84554d6",
+  "expectation_id": "HANDBOOK_SCOPE_T031_R1",
+  "format": "rule-scope-expectations/1",
+  "interpretation_snapshot_sha256": "b952329e09b8c447b1ab3d438643a75b829fbdbd7d0c30d5bbad0c8f41e21293",
+  "review_hash": "493d006fdd1642e7cee25494d144a79a32f06451479d15acd8dac24433cbe2f4",
+  "rules": [
+    {
+      "core_rule_id": "IR_P_HANDBOOK_PAPER",
+      "expectation": "expected_in_scope",
+      "rationale": "年齢0〜25とstudentの宣言範囲内に、学生ではない参加者の成立例があることを期待する。",
+      "source_unit_ids": [
+        "228b86f3f7611560464cd30abfca1a9970426b76cdfdc44eaa9f82b8a52eaa38"
+      ]
+    },
+    {
+      "core_rule_id": "IR_P_HANDBOOK_AGE_EXCEPTION",
+      "expectation": "expected_inactive",
+      "rationale": "第20条は26歳以上を条件とするため、age 0〜25の宣言範囲では非発火を期待する。",
+      "source_unit_ids": [
+        "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b"
+      ]
+    }
+  ],
+  "scope_hash": "5cdb9b458a606fbaf54e9f5aa9dae7ab0470b770dadf73a4a61e4c398269fd6a",
+  "source_unit_manifest_sha256": "1170350e93942928d90c68101169a7560b0f280997018e542963cbc614081c11",
+  "task_hash": "4a59b8b543655f8099a6f0467f194508cd83a106bbb4bf8bc0a5fdca6de5a8b8"
+}

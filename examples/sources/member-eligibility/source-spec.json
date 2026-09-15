@@ -1,0 +1,43 @@
+{
+  "expected_metadata_sha256": null,
+  "expected_raw_sha256": "b24dcb265bb81f209d1cf5e450875d66a267e198af8b85cd9ee3bbbad031738d",
+  "extraction": {
+    "definition_sha256": "f82a826149862515a881dc34c7ddb6a26f050c11e28d4a73ab3689f60cdf46bc",
+    "profile": "xml-unit-text/2",
+    "version": "2"
+  },
+  "format": "rule-source-capture-spec/1",
+  "references": [
+    {
+      "from_unit_key": "U2",
+      "literal": "前条",
+      "reference_id": "REF_PREVIOUS",
+      "status": "resolved",
+      "target_unit_key": "U1"
+    }
+  ],
+  "source": {
+    "document_id": "fictional_member_eligibility",
+    "effective_from": "2026-09-15",
+    "jurisdiction": "fictional",
+    "kind": "fictional_xml",
+    "law_id": null,
+    "metadata_url": null,
+    "raw_url": "urn:rule-source:member-eligibility:r1",
+    "revision_id": "member-eligibility-r1"
+  },
+  "units": [
+    {
+      "expected_text": "第1条 登録者で18歳以上の者は会員資格を持つ。",
+      "structural_kind": "rule",
+      "structural_path": "/RuleSource[1]/Unit[1]",
+      "unit_key": "U1"
+    },
+    {
+      "expected_text": "第2条 前条にかかわらず、利用停止中の者は会員資格を持たない。",
+      "structural_kind": "rule",
+      "structural_path": "/RuleSource[1]/Unit[2]",
+      "unit_key": "U2"
+    }
+  ]
+}

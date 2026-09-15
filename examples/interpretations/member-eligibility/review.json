@@ -1,0 +1,108 @@
+{
+  "accepted_assumption_ids": [
+    "A_AGE_AT_EVALUATION"
+  ],
+  "candidate_hash": "2248de5a76bb7ed143cd35b656c653c8d8548ad49d40eae11cda670943fd622d",
+  "coverage_decisions": [
+    {
+      "disposition": "selected",
+      "issue_ids": [],
+      "provision_ids": [
+        "P_ADULT_MEMBER"
+      ],
+      "rationale": "第1条を、登録済みかつ18歳以上の場合に資格ありを導く十分条件として採用する。逆方向は導かない。",
+      "source_unit_id": "c149dfa6fc427a6ca039ddcaa320a9630c8dcf2e66aa53913f13160a1441674c"
+    },
+    {
+      "disposition": "selected",
+      "issue_ids": [],
+      "provision_ids": [
+        "P_SUSPENSION_EXCEPTION"
+      ],
+      "rationale": "第2条を、第1条と同じeligible出力へ反対値を与える明示的replacement exceptionとして採用する。",
+      "source_unit_id": "2e3f2b3a4ee289ea39cf9ab611fa88f6ee186cdc3a736fdc3c147607b1501fa7"
+    }
+  ],
+  "findings": [],
+  "format": "rule-interpretation-review/1",
+  "review_id": "HOST_REVIEW_T05_R1",
+  "review_method": "manual_fixture_review",
+  "reviewer_id": "CODEX_T05_FIXTURE_AUTHOR",
+  "reviewed_at": "2026-09-15T13:10:00Z",
+  "selected_provision_ids": [
+    "P_ADULT_MEMBER",
+    "P_SUSPENSION_EXCEPTION"
+  ],
+  "semantic_tests": [
+    {
+      "expected": {
+        "eligible": {
+          "state": "absent"
+        }
+      },
+      "id": "G_UNDER_18",
+      "input": {
+        "age": 17,
+        "registered": true,
+        "suspended": false
+      }
+    },
+    {
+      "expected": {
+        "eligible": {
+          "state": "defined",
+          "value": true
+        }
+      },
+      "id": "G_AT_18",
+      "input": {
+        "age": 18,
+        "registered": true,
+        "suspended": false
+      }
+    },
+    {
+      "expected": {
+        "eligible": {
+          "state": "defined",
+          "value": true
+        }
+      },
+      "id": "G_ABOVE_18",
+      "input": {
+        "age": 25,
+        "registered": true,
+        "suspended": false
+      }
+    },
+    {
+      "expected": {
+        "eligible": {
+          "state": "defined",
+          "value": false
+        }
+      },
+      "id": "G_EXCEPTION",
+      "input": {
+        "age": 18,
+        "registered": true,
+        "suspended": true
+      }
+    },
+    {
+      "expected": {
+        "eligible": {
+          "state": "absent"
+        }
+      },
+      "id": "G_NOT_REGISTERED",
+      "input": {
+        "age": 18,
+        "registered": false,
+        "suspended": false
+      }
+    }
+  ],
+  "state": "approved",
+  "task_hash": "27d0f6dfceed5dd86c8bdc6392760e0e5f47b8bdc5165ec1ddbeda13f24dfe16"
+}

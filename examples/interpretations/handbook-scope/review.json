@@ -1,0 +1,90 @@
+{
+  "accepted_assumption_ids": [
+    "A_AGE_AT_PARTICIPATION"
+  ],
+  "candidate_hash": "02c8d88521f37dfc66cd9b073a364a5ffcb0ef13cda4096f2a57f8bdb81fa69d",
+  "coverage_decisions": [
+    {
+      "disposition": "selected",
+      "issue_ids": [],
+      "provision_ids": [
+        "P_HANDBOOK_PAPER"
+      ],
+      "rationale": "第19条を、学生ではない参加者へ紙版を与える十分条件として採用する。学生の場合の値は補わない。",
+      "source_unit_id": "228b86f3f7611560464cd30abfca1a9970426b76cdfdc44eaa9f82b8a52eaa38"
+    },
+    {
+      "disposition": "selected",
+      "issue_ids": [],
+      "provision_ids": [
+        "P_HANDBOOK_AGE_EXCEPTION"
+      ],
+      "rationale": "第20条を、第19条と同じhandbook出力へdigitalを与える明示的replacement exceptionとして採用する。",
+      "source_unit_id": "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b"
+    }
+  ],
+  "findings": [],
+  "format": "rule-interpretation-review/1",
+  "review_id": "HOST_REVIEW_HANDBOOK_T031_R1",
+  "review_method": "manual_fixture_review",
+  "reviewed_at": "2026-09-15T13:39:40Z",
+  "reviewer_id": "CODEX_T031_FIXTURE_AUTHOR",
+  "selected_provision_ids": [
+    "P_HANDBOOK_PAPER",
+    "P_HANDBOOK_AGE_EXCEPTION"
+  ],
+  "semantic_tests": [
+    {
+      "expected": {
+        "handbook": {
+          "state": "defined",
+          "value": "paper"
+        }
+      },
+      "id": "G_NON_STUDENT_0",
+      "input": {
+        "age": 0,
+        "student": false
+      }
+    },
+    {
+      "expected": {
+        "handbook": {
+          "state": "defined",
+          "value": "paper"
+        }
+      },
+      "id": "G_NON_STUDENT_25",
+      "input": {
+        "age": 25,
+        "student": false
+      }
+    },
+    {
+      "expected": {
+        "handbook": {
+          "state": "absent"
+        }
+      },
+      "id": "G_STUDENT_0",
+      "input": {
+        "age": 0,
+        "student": true
+      }
+    },
+    {
+      "expected": {
+        "handbook": {
+          "state": "absent"
+        }
+      },
+      "id": "G_STUDENT_25",
+      "input": {
+        "age": 25,
+        "student": true
+      }
+    }
+  ],
+  "state": "approved",
+  "task_hash": "4a59b8b543655f8099a6f0467f194508cd83a106bbb4bf8bc0a5fdca6de5a8b8"
+}

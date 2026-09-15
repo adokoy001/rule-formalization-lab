@@ -1,0 +1,136 @@
+{
+  "coverage": [
+    {
+      "issue_ids": [],
+      "provision_ids": [
+        "P_HANDBOOK_PAPER"
+      ],
+      "source_unit_id": "228b86f3f7611560464cd30abfca1a9970426b76cdfdc44eaa9f82b8a52eaa38"
+    },
+    {
+      "issue_ids": [],
+      "provision_ids": [
+        "P_HANDBOOK_AGE_EXCEPTION"
+      ],
+      "source_unit_id": "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b"
+    }
+  ],
+  "format": "rule-interpretation-candidate/1",
+  "proposed_assumptions": [
+    {
+      "id": "A_AGE_AT_PARTICIPATION",
+      "text": "入力ageは参加時点について既に認定された満年齢であり、年齢計算自体はこのpackで行わない。"
+    }
+  ],
+  "proposed_tests": [
+    {
+      "expected": {
+        "handbook": {
+          "state": "defined",
+          "value": "paper"
+        }
+      },
+      "id": "C_NON_STUDENT_25",
+      "input": {
+        "age": 25,
+        "student": false
+      }
+    },
+    {
+      "expected": {
+        "handbook": {
+          "state": "absent"
+        }
+      },
+      "id": "C_STUDENT_25",
+      "input": {
+        "age": 25,
+        "student": true
+      }
+    }
+  ],
+  "provisions": [
+    {
+      "assumption_ids": [],
+      "condition_role": "sufficient_trigger",
+      "id": "P_HANDBOOK_PAPER",
+      "issue_ids": [],
+      "kind": "decision_rule",
+      "overrides": [],
+      "reference_ids": [],
+      "source_quotes": [
+        {
+          "exact": "第19条　学生ではない参加者に配布する資料の形式は、紙版とする。",
+          "source_unit_id": "228b86f3f7611560464cd30abfca1a9970426b76cdfdc44eaa9f82b8a52eaa38"
+        }
+      ],
+      "source_unit_ids": [
+        "228b86f3f7611560464cd30abfca1a9970426b76cdfdc44eaa9f82b8a52eaa38"
+      ],
+      "then": {
+        "output": "handbook",
+        "value": "paper"
+      },
+      "when": {
+        "args": [
+          {
+            "var": "student"
+          }
+        ],
+        "op": "not"
+      }
+    },
+    {
+      "assumption_ids": [
+        "A_AGE_AT_PARTICIPATION"
+      ],
+      "condition_role": "sufficient_trigger",
+      "id": "P_HANDBOOK_AGE_EXCEPTION",
+      "issue_ids": [],
+      "kind": "exception",
+      "overrides": [
+        "P_HANDBOOK_PAPER"
+      ],
+      "reference_ids": [
+        "REF_ARTICLE_19"
+      ],
+      "source_quotes": [
+        {
+          "exact": "第20条　26歳以上の参加者に配布する資料の形式は、第19条にかかわらず電子版とする。",
+          "source_unit_id": "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b"
+        }
+      ],
+      "source_unit_ids": [
+        "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b"
+      ],
+      "then": {
+        "output": "handbook",
+        "value": "digital"
+      },
+      "when": {
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 26
+          }
+        ],
+        "op": "ge"
+      }
+    }
+  ],
+  "references": [
+    {
+      "from_source_unit_id": "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b",
+      "literal": "第19条",
+      "reference_id": "REF_ARTICLE_19",
+      "status": "resolved",
+      "target_provision_id": "P_HANDBOOK_PAPER"
+    }
+  ],
+  "source_unit_manifest_sha256": "1170350e93942928d90c68101169a7560b0f280997018e542963cbc614081c11",
+  "task_hash": "4a59b8b543655f8099a6f0467f194508cd83a106bbb4bf8bc0a5fdca6de5a8b8",
+  "task_id": "handbook_scope_t031",
+  "unresolved_issues": []
+}

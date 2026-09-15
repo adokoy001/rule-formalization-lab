@@ -1,0 +1,170 @@
+{
+  "coverage": [
+    {
+      "issue_ids": [],
+      "provision_ids": [
+        "P_ARTICLE41_UNDER14"
+      ],
+      "source_unit_id": "d7e82dbc6df76bb2ae495e8de02aaf979eb907838c771dc47e550fbabbba23b7"
+    }
+  ],
+  "format": "rule-interpretation-candidate/1",
+  "proposed_assumptions": [
+    {
+      "id": "A_COMPLETED_AGE_AT_ACT",
+      "text": "age_at_act_statusがestablishedの場合、age_at_act_yearsは行為時点について既に認定された満年齢であり、出生日時等からの法的な年齢計算はこのpackで行わない。"
+    },
+    {
+      "id": "A_STATUS_CARRIER_IGNORED",
+      "text": "age_at_act_statusがunknown又はact_time_statusがunresolvedの場合、age_at_act_yearsは有限全列挙のcarrier値にすぎず、刑法41条の帰結には用いない。"
+    },
+    {
+      "id": "A_ARTICLE41_LIMITED_CONCLUSION",
+      "text": "出力trueは、固定された刑法41条本文のうち14歳未満の者の行為を罰しないという限定的な帰結が、与えられた入力上で成立することだけを表す。"
+    },
+    {
+      "id": "A_OTHER_LAW_OUT_OF_SCOPE",
+      "text": "他条・他法令、事実認定、犯罪の成立、責任一般、14歳以上の処罰可能性及び有罪判断はこのpackの範囲外であり、出力absentからそれらを導かない。"
+    }
+  ],
+  "proposed_tests": [
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "defined",
+          "value": true
+        }
+      },
+      "id": "C_13_EST_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "established",
+        "age_at_act_years": 13
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "C_14_EST_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "established",
+        "age_at_act_years": 14
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "C_15_EST_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "established",
+        "age_at_act_years": 15
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "C_13_UNKNOWN_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 13
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "C_13_EST_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "established",
+        "age_at_act_years": 13
+      }
+    }
+  ],
+  "provisions": [
+    {
+      "assumption_ids": [
+        "A_COMPLETED_AGE_AT_ACT",
+        "A_STATUS_CARRIER_IGNORED",
+        "A_ARTICLE41_LIMITED_CONCLUSION",
+        "A_OTHER_LAW_OUT_OF_SCOPE"
+      ],
+      "condition_role": "sufficient_trigger",
+      "id": "P_ARTICLE41_UNDER14",
+      "issue_ids": [],
+      "kind": "decision_rule",
+      "overrides": [],
+      "reference_ids": [],
+      "source_quotes": [
+        {
+          "exact": "十四歳に満たない者の行為は、罰しない。",
+          "source_unit_id": "d7e82dbc6df76bb2ae495e8de02aaf979eb907838c771dc47e550fbabbba23b7"
+        }
+      ],
+      "source_unit_ids": [
+        "d7e82dbc6df76bb2ae495e8de02aaf979eb907838c771dc47e550fbabbba23b7"
+      ],
+      "then": {
+        "output": "article41_under14_nonpunishment_applies",
+        "value": true
+      },
+      "when": {
+        "args": [
+          {
+            "args": [
+              {
+                "var": "age_at_act_status"
+              },
+              {
+                "const": "established"
+              }
+            ],
+            "op": "eq"
+          },
+          {
+            "args": [
+              {
+                "var": "act_time_status"
+              },
+              {
+                "const": "established"
+              }
+            ],
+            "op": "eq"
+          },
+          {
+            "args": [
+              {
+                "var": "age_at_act_years"
+              },
+              {
+                "const": 14
+              }
+            ],
+            "op": "lt"
+          }
+        ],
+        "op": "and"
+      }
+    }
+  ],
+  "references": [],
+  "source_unit_manifest_sha256": "677889a47e93aafd05ec692fd20e247e90b939f4619eaaadb422b37c64ff8337",
+  "task_hash": "80033d3e3b63557599a69c51203f53a41f6338bba51e113380a697af8053ced6",
+  "task_id": "penal_code_41_t07",
+  "unresolved_issues": []
+}

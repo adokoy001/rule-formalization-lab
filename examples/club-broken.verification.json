@@ -1,0 +1,73 @@
+{
+  "admitted_contexts": 52,
+  "certificate_hash": "e0a0ea58a9a153d46feb5fa643f62bdf1d411345741b0984a2a56dcd41ca9dec",
+  "checker_version": "0.1.0",
+  "limits": {
+    "max_certificate_bytes": 8388608,
+    "max_contexts": 10000
+  },
+  "model_hash": "e404e8936e39c10006cc53a7f2b3c85d47b52855d887bfc6885519e1ace07d56",
+  "origin_kind": "authored_core",
+  "queries": [
+    {
+      "count": 0,
+      "kind": "conflict",
+      "output": "badge",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 4,
+      "kind": "conflict",
+      "output": "eligible",
+      "status": "WITNESS_VERIFIED",
+      "witness": {
+        "case_index": 36,
+        "input": {
+          "age": 18,
+          "student": false
+        },
+        "rule_ids": [
+          "R1",
+          "R2"
+        ],
+        "values": [
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "count": 0,
+      "kind": "gap",
+      "output": "eligible",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 0,
+      "kind": "conflict",
+      "output": "fee_yen",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 4,
+      "kind": "gap",
+      "output": "fee_yen",
+      "status": "WITNESS_VERIFIED",
+      "witness": {
+        "case_index": 36,
+        "input": {
+          "age": 18,
+          "student": false
+        },
+        "rule_ids": [],
+        "values": []
+      }
+    }
+  ],
+  "status": "VERIFIED",
+  "title": "架空の星見クラブ規約 — 問題のある版",
+  "total_contexts": 52
+}

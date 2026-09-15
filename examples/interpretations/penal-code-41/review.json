@@ -1,0 +1,190 @@
+{
+  "accepted_assumption_ids": [
+    "A_COMPLETED_AGE_AT_ACT",
+    "A_STATUS_CARRIER_IGNORED",
+    "A_ARTICLE41_LIMITED_CONCLUSION",
+    "A_OTHER_LAW_OUT_OF_SCOPE"
+  ],
+  "candidate_hash": "aa19598ba55abc7038438f7d2048d333590e9365b5978f936bebb2b72f847674",
+  "coverage_decisions": [
+    {
+      "disposition": "selected",
+      "issue_ids": [],
+      "provision_ids": [
+        "P_ARTICLE41_UNDER14"
+      ],
+      "rationale": "本文の『十四歳に満たない』を14歳未満という十分条件として採用する。14歳以上の場合への逆方向の結論、年齢計算、他条・他法令の効果は採用しない。",
+      "source_unit_id": "d7e82dbc6df76bb2ae495e8de02aaf979eb907838c771dc47e550fbabbba23b7"
+    }
+  ],
+  "findings": [],
+  "format": "rule-interpretation-review/1",
+  "review_id": "HOST_REVIEW_T07_R1",
+  "review_method": "manual_fixture_review",
+  "reviewed_at": "2026-09-15T15:30:00Z",
+  "reviewer_id": "CODEX_T07_FIXTURE_AUTHOR",
+  "selected_provision_ids": [
+    "P_ARTICLE41_UNDER14"
+  ],
+  "semantic_tests": [
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "defined",
+          "value": true
+        }
+      },
+      "id": "G_13_EST_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "established",
+        "age_at_act_years": 13
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_13_EST_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "established",
+        "age_at_act_years": 13
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_13_UNK_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 13
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_13_UNK_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 13
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_14_EST_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "established",
+        "age_at_act_years": 14
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_14_EST_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "established",
+        "age_at_act_years": 14
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_14_UNK_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 14
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_14_UNK_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 14
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_15_EST_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "established",
+        "age_at_act_years": 15
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_15_EST_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "established",
+        "age_at_act_years": 15
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_15_UNK_EST",
+      "input": {
+        "act_time_status": "established",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 15
+      }
+    },
+    {
+      "expected": {
+        "article41_under14_nonpunishment_applies": {
+          "state": "absent"
+        }
+      },
+      "id": "G_15_UNK_UNRES",
+      "input": {
+        "act_time_status": "unresolved",
+        "age_at_act_status": "unknown",
+        "age_at_act_years": 15
+      }
+    }
+  ],
+  "state": "approved",
+  "task_hash": "80033d3e3b63557599a69c51203f53a41f6338bba51e113380a697af8053ced6"
+}

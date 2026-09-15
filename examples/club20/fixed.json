@@ -1,0 +1,512 @@
+{
+  "profile": "finite-decisions/1",
+  "origin_kind": "authored_core",
+  "title": "星見クラブ20規則 — 境界と貸出例外を直した版",
+  "inputs": {
+    "age": {
+      "kind": "int",
+      "min": 0,
+      "max": 25
+    },
+    "event": {
+      "kind": "bool"
+    },
+    "member": {
+      "kind": "bool"
+    },
+    "student": {
+      "kind": "bool"
+    },
+    "training": {
+      "kind": "bool"
+    }
+  },
+  "outputs": {
+    "eligible": {
+      "type": {
+        "kind": "bool"
+      },
+      "required": true
+    },
+    "fee_yen": {
+      "type": {
+        "kind": "int",
+        "min": 0,
+        "max": 1000
+      },
+      "required": true
+    },
+    "loan_limit": {
+      "type": {
+        "kind": "int",
+        "min": 0,
+        "max": 3
+      },
+      "required": true
+    },
+    "deposit_yen": {
+      "type": {
+        "kind": "int",
+        "min": 0,
+        "max": 1000
+      },
+      "required": true
+    },
+    "handbook": {
+      "type": {
+        "kind": "enum",
+        "values": [
+          "digital",
+          "paper"
+        ]
+      },
+      "required": true
+    },
+    "badge": {
+      "type": {
+        "kind": "bool"
+      },
+      "required": false
+    }
+  },
+  "constraints": [],
+  "facts": [],
+  "rules": [
+    {
+      "id": "R01",
+      "source": "第1条　18歳以上の参加者は、会員資格を持つ。",
+      "when": {
+        "op": "ge",
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 18
+          }
+        ]
+      },
+      "then": {
+        "output": "eligible",
+        "value": true
+      },
+      "overrides": []
+    },
+    {
+      "id": "R02",
+      "source": "第2条　18歳未満の参加者は、会員資格を持たない。",
+      "when": {
+        "op": "lt",
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 18
+          }
+        ]
+      },
+      "then": {
+        "output": "eligible",
+        "value": false
+      },
+      "overrides": []
+    },
+    {
+      "id": "R03",
+      "source": "第3条　18歳未満の参加者の参加料金は、500円とする。",
+      "when": {
+        "op": "lt",
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 18
+          }
+        ]
+      },
+      "then": {
+        "output": "fee_yen",
+        "value": 500
+      },
+      "overrides": []
+    },
+    {
+      "id": "R04",
+      "source": "第4条　18歳以上の参加者の参加料金は、1000円とする。",
+      "when": {
+        "op": "ge",
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 18
+          }
+        ]
+      },
+      "then": {
+        "output": "fee_yen",
+        "value": 1000
+      },
+      "overrides": []
+    },
+    {
+      "id": "R05",
+      "source": "第5条　18歳以上の学生の参加料金は、第4条にかかわらず800円とする。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "ge",
+            "args": [
+              {
+                "var": "age"
+              },
+              {
+                "const": 18
+              }
+            ]
+          },
+          {
+            "var": "student"
+          }
+        ]
+      },
+      "then": {
+        "output": "fee_yen",
+        "value": 800
+      },
+      "overrides": [
+        "R04"
+      ]
+    },
+    {
+      "id": "R06",
+      "source": "第6条　特別企画に参加する18歳以上の学生の参加料金は、第5条にかかわらず1000円とする。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "ge",
+            "args": [
+              {
+                "var": "age"
+              },
+              {
+                "const": 18
+              }
+            ]
+          },
+          {
+            "var": "student"
+          },
+          {
+            "var": "event"
+          }
+        ]
+      },
+      "then": {
+        "output": "fee_yen",
+        "value": 1000
+      },
+      "overrides": [
+        "R05"
+      ]
+    },
+    {
+      "id": "R07",
+      "source": "第7条　18歳以上の学生には、記念バッジの配布対象印を付ける。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "ge",
+            "args": [
+              {
+                "var": "age"
+              },
+              {
+                "const": 18
+              }
+            ]
+          },
+          {
+            "var": "student"
+          }
+        ]
+      },
+      "then": {
+        "output": "badge",
+        "value": true
+      },
+      "overrides": []
+    },
+    {
+      "id": "R08",
+      "source": "第8条　既存会員には、記念バッジの配布対象印を付ける。",
+      "when": {
+        "var": "member"
+      },
+      "then": {
+        "output": "badge",
+        "value": true
+      },
+      "overrides": []
+    },
+    {
+      "id": "R09",
+      "source": "第9条　機材講習を修了した参加者の貸出上限は、3個とする。",
+      "when": {
+        "var": "training"
+      },
+      "then": {
+        "output": "loan_limit",
+        "value": 3
+      },
+      "overrides": []
+    },
+    {
+      "id": "R10",
+      "source": "第10条　機材講習を修了していない参加者の貸出上限は、1個とする。",
+      "when": {
+        "op": "not",
+        "args": [
+          {
+            "var": "training"
+          }
+        ]
+      },
+      "then": {
+        "output": "loan_limit",
+        "value": 1
+      },
+      "overrides": []
+    },
+    {
+      "id": "R11",
+      "source": "第11条　16歳未満の参加者の貸出上限は、第9条及び第10条にかかわらず0個とする。",
+      "when": {
+        "op": "lt",
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 16
+          }
+        ]
+      },
+      "then": {
+        "output": "loan_limit",
+        "value": 0
+      },
+      "overrides": [
+        "R09",
+        "R10"
+      ]
+    },
+    {
+      "id": "R12",
+      "source": "第12条　特別企画に参加する16歳未満の機材講習修了者の貸出上限は、第11条にかかわらず3個とする。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "lt",
+            "args": [
+              {
+                "var": "age"
+              },
+              {
+                "const": 16
+              }
+            ]
+          },
+          {
+            "var": "event"
+          },
+          {
+            "var": "training"
+          }
+        ]
+      },
+      "then": {
+        "output": "loan_limit",
+        "value": 3
+      },
+      "overrides": [
+        "R11"
+      ]
+    },
+    {
+      "id": "R13",
+      "source": "第13条　25歳以上の既存会員の貸出上限は、第9条及び第10条にかかわらず2個とする。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "ge",
+            "args": [
+              {
+                "var": "age"
+              },
+              {
+                "const": 25
+              }
+            ]
+          },
+          {
+            "var": "member"
+          }
+        ]
+      },
+      "then": {
+        "output": "loan_limit",
+        "value": 2
+      },
+      "overrides": [
+        "R09",
+        "R10"
+      ]
+    },
+    {
+      "id": "R14",
+      "source": "第14条　既存会員ではない参加者の預り金は、1000円とする。",
+      "when": {
+        "op": "not",
+        "args": [
+          {
+            "var": "member"
+          }
+        ]
+      },
+      "then": {
+        "output": "deposit_yen",
+        "value": 1000
+      },
+      "overrides": []
+    },
+    {
+      "id": "R15",
+      "source": "第15条　既存会員の預り金は、0円とする。",
+      "when": {
+        "var": "member"
+      },
+      "then": {
+        "output": "deposit_yen",
+        "value": 0
+      },
+      "overrides": []
+    },
+    {
+      "id": "R16",
+      "source": "第16条　既存会員ではない学生の預り金は、第14条にかかわらず500円とする。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "not",
+            "args": [
+              {
+                "var": "member"
+              }
+            ]
+          },
+          {
+            "var": "student"
+          }
+        ]
+      },
+      "then": {
+        "output": "deposit_yen",
+        "value": 500
+      },
+      "overrides": [
+        "R14"
+      ]
+    },
+    {
+      "id": "R17",
+      "source": "第17条　特別企画に参加する、既存会員ではない学生の預り金は、第16条にかかわらず1000円とする。",
+      "when": {
+        "op": "and",
+        "args": [
+          {
+            "op": "not",
+            "args": [
+              {
+                "var": "member"
+              }
+            ]
+          },
+          {
+            "var": "student"
+          },
+          {
+            "var": "event"
+          }
+        ]
+      },
+      "then": {
+        "output": "deposit_yen",
+        "value": 1000
+      },
+      "overrides": [
+        "R16"
+      ]
+    },
+    {
+      "id": "R18",
+      "source": "第18条　学生に配布する資料の形式は、電子版とする。",
+      "when": {
+        "var": "student"
+      },
+      "then": {
+        "output": "handbook",
+        "value": "digital"
+      },
+      "overrides": []
+    },
+    {
+      "id": "R19",
+      "source": "第19条　学生ではない参加者に配布する資料の形式は、紙版とする。",
+      "when": {
+        "op": "not",
+        "args": [
+          {
+            "var": "student"
+          }
+        ]
+      },
+      "then": {
+        "output": "handbook",
+        "value": "paper"
+      },
+      "overrides": []
+    },
+    {
+      "id": "R20",
+      "source": "第20条　26歳以上の参加者に配布する資料の形式は、第19条にかかわらず電子版とする。",
+      "when": {
+        "op": "ge",
+        "args": [
+          {
+            "var": "age"
+          },
+          {
+            "const": 26
+          }
+        ]
+      },
+      "then": {
+        "output": "handbook",
+        "value": "digital"
+      },
+      "overrides": [
+        "R19"
+      ]
+    }
+  ]
+}

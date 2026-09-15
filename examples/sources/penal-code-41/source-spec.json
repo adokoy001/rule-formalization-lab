@@ -1,0 +1,29 @@
+{
+  "expected_metadata_sha256": "e24b142ceb4b7a748a16835de49870fe9672165fdf0e66358b05004bdf8689a0",
+  "expected_raw_sha256": "2b079c84c131b571974a36e1c87589c5a4737a037c309caf1ec07fa4d12feedb",
+  "extraction": {
+    "definition_sha256": "f82a826149862515a881dc34c7ddb6a26f050c11e28d4a73ab3689f60cdf46bc",
+    "profile": "xml-unit-text/2",
+    "version": "2"
+  },
+  "format": "rule-source-capture-spec/1",
+  "references": [],
+  "source": {
+    "document_id": "jp_penal_code",
+    "effective_from": "2026-05-21",
+    "jurisdiction": "JP",
+    "kind": "egov_api_v2",
+    "law_id": "140AC0000000045",
+    "metadata_url": "https://laws.e-gov.go.jp/api/2/law_data/140AC0000000045_20260521_507AC0000000039",
+    "raw_url": "https://laws.e-gov.go.jp/api/2/law_file/xml/140AC0000000045_20260521_507AC0000000039",
+    "revision_id": "140AC0000000045_20260521_507AC0000000039"
+  },
+  "units": [
+    {
+      "expected_text": "（責任年齢）第四十一条十四歳に満たない者の行為は、罰しない。",
+      "structural_kind": "article",
+      "structural_path": "/Law[1]/LawBody[1]/MainProvision[1]/Part[1]/Chapter[7]/Article[7]",
+      "unit_key": "ARTICLE_41"
+    }
+  ]
+}

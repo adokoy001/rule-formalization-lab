@@ -1,0 +1,49 @@
+{
+  "expected_metadata_sha256": null,
+  "expected_raw_sha256": "975492dd0211c55b50221ea2ccdd1ce0aa03fde025efb9434350df7cd5cfac11",
+  "extraction": {
+    "definition_sha256": "f82a826149862515a881dc34c7ddb6a26f050c11e28d4a73ab3689f60cdf46bc",
+    "profile": "xml-unit-text/2",
+    "version": "2"
+  },
+  "format": "rule-source-capture-spec/1",
+  "references": [
+    {
+      "from_unit_key": "U3",
+      "literal": "別に定める",
+      "reference_id": "REF1",
+      "status": "unresolved",
+      "target_unit_key": null
+    }
+  ],
+  "source": {
+    "document_id": "fictional_unicode_rules",
+    "effective_from": "2026-09-15",
+    "jurisdiction": "fictional",
+    "kind": "fictional_xml",
+    "law_id": null,
+    "metadata_url": null,
+    "raw_url": "urn:rule-source:fictional-unicode:r1",
+    "revision_id": "fictional-unicode-r1"
+  },
+  "units": [
+    {
+      "expected_text": "第1条 A👩‍⚖️é & 同じ文。",
+      "structural_kind": "rule",
+      "structural_path": "/RuleSource[1]/Unit[1]",
+      "unit_key": "U1"
+    },
+    {
+      "expected_text": "第2条 A👩‍⚖️é & 同じ文。",
+      "structural_kind": "rule",
+      "structural_path": "/RuleSource[1]/Unit[2]",
+      "unit_key": "U2"
+    },
+    {
+      "expected_text": "第3条 賭博の細則は別に定める。",
+      "structural_kind": "rule",
+      "structural_path": "/RuleSource[1]/Unit[3]",
+      "unit_key": "U3"
+    }
+  ]
+}

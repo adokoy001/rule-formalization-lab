@@ -1,0 +1,24 @@
+{
+  "profile": "finite-decisions/1",
+  "origin_kind": "authored_core",
+  "title": "架空の星見クラブ規約 — 問題のある版",
+  "inputs": {
+    "age": {"kind": "int", "min": 0, "max": 25},
+    "student": {"kind": "bool"}
+  },
+  "outputs": {
+    "eligible": {"type": {"kind": "bool"}, "required": true},
+    "fee_yen": {"type": {"kind": "int", "min": 0, "max": 1000}, "required": true},
+    "badge": {"type": {"kind": "bool"}, "required": false}
+  },
+  "constraints": [],
+  "facts": [],
+  "rules": [
+    {"id": "R1", "source": "第1条　18歳以上の参加者は、会員資格を持つ。", "when": {"op": "ge", "args": [{"var": "age"}, {"const": 18}]}, "then": {"output": "eligible", "value": true}, "overrides": []},
+    {"id": "R2", "source": "第2条　20歳未満の参加者は、会員資格を持たない。", "when": {"op": "lt", "args": [{"var": "age"}, {"const": 20}]}, "then": {"output": "eligible", "value": false}, "overrides": []},
+    {"id": "R3", "source": "第3条　18歳未満の参加者の参加料金は、500円とする。", "when": {"op": "lt", "args": [{"var": "age"}, {"const": 18}]}, "then": {"output": "fee_yen", "value": 500}, "overrides": []},
+    {"id": "R4", "source": "第4条　20歳以上の参加者の参加料金は、1000円とする。", "when": {"op": "ge", "args": [{"var": "age"}, {"const": 20}]}, "then": {"output": "fee_yen", "value": 1000}, "overrides": []},
+    {"id": "R5", "source": "第5条　20歳以上の学生の参加料金は、第4条にかかわらず800円とする。", "when": {"op": "and", "args": [{"op": "ge", "args": [{"var": "age"}, {"const": 20}]}, {"var": "student"}]}, "then": {"output": "fee_yen", "value": 800}, "overrides": ["R4"]},
+    {"id": "R6", "source": "第6条　18歳以上の学生には、記念バッジの配布対象印を付ける。", "when": {"op": "and", "args": [{"op": "ge", "args": [{"var": "age"}, {"const": 18}]}, {"var": "student"}]}, "then": {"output": "badge", "value": true}, "overrides": []}
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "allowed_provision_kinds": [
+    "decision_rule",
+    "exception",
+    "unresolved"
+  ],
+  "allowed_source_unit_ids": [
+    "228b86f3f7611560464cd30abfca1a9970426b76cdfdc44eaa9f82b8a52eaa38",
+    "d33f77e433c396a626c56114bdc349fdfc58fc644db3af3cab002e1f1e93ac3b"
+  ],
+  "conversion_profile": "candidate-to-finite-decisions/1",
+  "core_scope": {
+    "constraints": [],
+    "facts": [],
+    "inputs": {
+      "age": {
+        "kind": "int",
+        "max": 25,
+        "min": 0
+      },
+      "student": {
+        "kind": "bool"
+      }
+    },
+    "outputs": {
+      "handbook": {
+        "required": false,
+        "type": {
+          "kind": "enum",
+          "values": [
+            "digital",
+            "paper"
+          ]
+        }
+      }
+    },
+    "title": "星見クラブ資料形式・scope確認"
+  },
+  "format": "rule-interpretation-task/1",
+  "source": {
+    "document_id": "fictional_handbook_scope",
+    "raw_sha256": "434f4f1b4ec82cb1a75d91aced7d2cc143ff90ef533063ce6eb33152d3034166",
+    "revision_id": "handbook-scope-r1",
+    "source_bundle_sha256": "52ca5a149fe1e901b62854ac4b12c613e0ab8261e54a4b6a932f2963bd0dc8e4",
+    "source_package_format": "rule-source-package/1",
+    "source_spec_sha256": "7c4dbcefee2f0baf6bfe0b4d4360b3f59e9d2fdf1fe7cc0d4f1c3971d19d0c76",
+    "source_unit_manifest_sha256": "1170350e93942928d90c68101169a7560b0f280997018e542963cbc614081c11"
+  },
+  "task_id": "handbook_scope_t031"
+}

@@ -1,0 +1,51 @@
+{
+  "admitted_contexts": 52,
+  "certificate_hash": "c9a5e8153cce4980d9a77d8a79043d94416db8b8fff78d093386dc99dd50ea4e",
+  "checker_version": "0.1.0",
+  "limits": {
+    "max_certificate_bytes": 8388608,
+    "max_contexts": 10000
+  },
+  "model_hash": "51071c237e159792e0d5895addc65e4de52aefe184c8702c5602555c1171fc57",
+  "origin_kind": "authored_core",
+  "queries": [
+    {
+      "count": 0,
+      "kind": "conflict",
+      "output": "badge",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 0,
+      "kind": "conflict",
+      "output": "eligible",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 0,
+      "kind": "gap",
+      "output": "eligible",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 0,
+      "kind": "conflict",
+      "output": "fee_yen",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    },
+    {
+      "count": 0,
+      "kind": "gap",
+      "output": "fee_yen",
+      "status": "NO_WITNESS_IN_SCOPE_VERIFIED",
+      "witness": null
+    }
+  ],
+  "status": "VERIFIED",
+  "title": "架空の星見クラブ規約 — 境界を揃えた版",
+  "total_contexts": 52
+}
