@@ -20,6 +20,21 @@ from .model import (
 )
 
 
+_INTERNAL_ERROR_MESSAGE = "An unexpected internal error occurred"
+
+
+def _fsync_directory(directory: Path) -> None:
+    """Best-effort durability barrier for directory entry changes."""
+    try:
+        directory_fd = os.open(directory, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except OSError:
+        pass
+
+
 def _load_certificate(path: str) -> object:
     try:
         return load_json(path, max_bytes=MAX_CERTIFICATE_BYTES)
@@ -43,6 +58,8 @@ def _save_new(path: str, certificate: dict) -> None:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
+    published_identity = None
+    completed = False
     try:
         with tempfile.NamedTemporaryFile(
             mode="w",
@@ -55,18 +72,33 @@ def _save_new(path: str, certificate: dict) -> None:
             stream.write(canonical_json(certificate))
             stream.flush()
             os.fsync(stream.fileno())
+        temporary_stat = os.stat(temporary, follow_symlinks=False)
         os.link(temporary, destination)
-        try:
-            directory_fd = os.open(destination.parent, os.O_RDONLY)
-            try:
-                os.fsync(directory_fd)
-            finally:
-                os.close(directory_fd)
-        except OSError:
-            pass
+        published_identity = (temporary_stat.st_dev, temporary_stat.st_ino)
+        _fsync_directory(destination.parent)
+        os.unlink(temporary)
+        temporary = None
+        _fsync_directory(destination.parent)
+        completed = True
     finally:
-        if temporary is not None and os.path.exists(temporary):
-            os.unlink(temporary)
+        active_failure = sys.exc_info()[0] is not None
+        if not completed and published_identity is not None:
+            try:
+                destination_stat = os.lstat(destination)
+                if (destination_stat.st_dev, destination_stat.st_ino) == published_identity:
+                    os.unlink(destination)
+            except OSError:
+                pass
+            except Exception:
+                if not active_failure:
+                    raise
+        if temporary is not None:
+            try:
+                if os.path.exists(temporary):
+                    os.unlink(temporary)
+            except Exception:
+                if not active_failure:
+                    raise
 
 
 def _limits(parser):
@@ -162,6 +194,23 @@ def main(argv=None) -> int:
             print(canonical_json(failure))
         else:
             print(f"{status}: {message}\nVerification is undetermined.", file=sys.stderr)
+        return 2
+    except Exception:
+        if args.json:
+            failure = {
+                "status": "INTERNAL_ERROR",
+                "message": _INTERNAL_ERROR_MESSAGE,
+                "finding": "undetermined",
+            }
+            if args.command == "generate":
+                failure["published_certificate"] = None
+            print(canonical_json(failure))
+        else:
+            print(
+                f"INTERNAL_ERROR: {_INTERNAL_ERROR_MESSAGE}\n"
+                "Verification is undetermined.",
+                file=sys.stderr,
+            )
         return 2
 
 

@@ -285,11 +285,105 @@ def _prefix_result(replayed):
     return "fulfilled"
 
 
+def _serialized_size(value: object) -> int:
+    return len(canonical_json(value).encode("utf-8"))
+
+
+def _next_array_payload_size(current_size: int, current_count: int, value: object) -> int:
+    """Measure the exact canonical bytes between an array's brackets."""
+
+    return _next_array_payload_size_from_item_size(
+        current_size, current_count, _serialized_size(value)
+    )
+
+
+def _next_array_payload_size_from_item_size(
+    current_size: int, current_count: int, item_size: int
+) -> int:
+    separator = 1 if current_count else 0
+    return current_size + separator + item_size
+
+
+def _minimum_replay_size(model, metadata, enumeration_rows, model_hash):
+    """Compute a lower bound that no complete replay certificate can undercut.
+
+    Counts are non-negative, making ``0`` their shortest JSON spelling, and
+    ``true`` is the shorter boolean.  The remaining envelope fields already
+    have their final values.  Case and trace payload bytes can safely be added
+    to this bound without rejecting a certificate that could fit.
+    """
+
+    feasibility = {
+        "background_trace_impossible": 0,
+        "normatively_infeasible": 0,
+        "compliance_feasible": 0,
+        "completion_unresolved": 0,
+    }
+    outcomes = {
+        "fulfilled": 0,
+        "pending": 0,
+        "violated": 0,
+        "unresolved_anchor": 0,
+        "unresolved_time": 0,
+        "background_violated": 0,
+    }
+    lower_bound = {
+        "format": CERTIFICATE_FORMAT,
+        "profile": model["profile"],
+        "semantics_version": SEMANTICS_VERSION,
+        "model_hash": model_hash,
+        "engine_version": CHECKER_ENGINE_VERSION,
+        "enumeration": {
+            "slot_order": metadata["slot_order"],
+            "context_order": metadata["context_order"],
+            "contexts": enumeration_rows,
+            "context_count": 0,
+            "total_candidate_traces": metadata["total_candidate_traces"],
+        },
+        "counts": {
+            "total_contexts": 0,
+            "feasibility": feasibility,
+            "observed_outcomes": outcomes,
+        },
+        "cases": [],
+        "diagnostics": {
+            "has_findings": True,
+            "feasibility": feasibility,
+            "observed_outcomes": outcomes,
+        },
+    }
+    return _serialized_size(lower_bound)
+
+
+def _enforce_replay_limit(minimum_size: int, payload_size: int) -> None:
+    if minimum_size + payload_size > MAX_CERTIFICATE_BYTES:
+        raise KernelError(
+            "LIMIT_REACHED",
+            f"Independent replay would exceed {MAX_CERTIFICATE_BYTES} bytes",
+        )
+
+
 def _reconstruct(model, metadata):
     slot_map = {item["id"]: item for item in model["slots"]}
     context_map = {item["id"]: item for item in model["contexts"]}
     cases = []
     enumeration_rows = []
+    for context_id in metadata["context_order"]:
+        context = context_map[context_id]
+        branch_order = sorted(row["slot"] for row in context["future"])
+        enumeration_rows.append(
+            {
+                "context_id": context_id,
+                "future_slot_order": branch_order,
+                "candidate_trace_count": metadata["candidate_counts"][context_id],
+            }
+        )
+    model_hash = digest(model)
+    minimum_replay_size = _minimum_replay_size(
+        model, metadata, enumeration_rows, model_hash
+    )
+    _enforce_replay_limit(minimum_replay_size, 0)
+    cases_payload_size = 0
     feasibility = {
         "background_trace_impossible": 0,
         "normatively_infeasible": 0,
@@ -315,17 +409,25 @@ def _reconstruct(model, metadata):
             )
             alternatives.append([None, *ordered])
         traces = []
+        traces_payload_size = 0
         for combination in product(*alternatives):
             branch = {name: value for name, value in zip(branch_order, combination)}
             event_map = _make_events(context, branch)
             replayed = _replay_state(model, context, event_map)
-            traces.append(
-                {
-                    "choice": {name: branch[name] for name in branch_order},
-                    "events": _serialize_events(event_map, slot_map),
-                    **replayed,
-                }
+            trace = {
+                "choice": {name: branch[name] for name in branch_order},
+                "events": _serialize_events(event_map, slot_map),
+                **replayed,
+            }
+            next_traces_payload_size = _next_array_payload_size(
+                traces_payload_size, len(traces), trace
             )
+            _enforce_replay_limit(
+                minimum_replay_size,
+                cases_payload_size + next_traces_payload_size,
+            )
+            traces.append(trace)
+            traces_payload_size = next_traces_payload_size
         bg_indexes = [index for index, row in enumerate(traces) if row["background_possible"]]
         viable_indexes = [index for index, row in enumerate(traces) if row["viable"]]
         complete_indexes = [index for index, row in enumerate(traces) if row["fully_satisfied"]]
@@ -355,42 +457,46 @@ def _reconstruct(model, metadata):
             first = indexes[0]
             return {"trace_index": first, "choice": traces[first]["choice"]}
 
-        cases.append(
-            {
-                "context_id": context_id,
-                "observation_end": context["observation_end"],
-                "observed_events": _serialize_events(observed_map, slot_map),
-                "future_slot_order": branch_order,
-                "candidate_trace_count": len(traces),
-                "classification": class_name,
-                "observed_outcome": outcome,
-                "observed_evaluation": prefix,
-                "background_trace_count": len(bg_indexes),
-                "viable_trace_count": len(viable_indexes),
-                "satisfying_trace_count": len(complete_indexes),
-                "first_background_witness": witness(bg_indexes),
-                "first_compliance_witness": witness(complete_indexes),
-                "traces": traces,
-            }
+        case = {
+            "context_id": context_id,
+            "observation_end": context["observation_end"],
+            "observed_events": _serialize_events(observed_map, slot_map),
+            "future_slot_order": branch_order,
+            "candidate_trace_count": len(traces),
+            "classification": class_name,
+            "observed_outcome": outcome,
+            "observed_evaluation": prefix,
+            "background_trace_count": len(bg_indexes),
+            "viable_trace_count": len(viable_indexes),
+            "satisfying_trace_count": len(complete_indexes),
+            "first_background_witness": witness(bg_indexes),
+            "first_compliance_witness": witness(complete_indexes),
+            "traces": traces,
+        }
+        # Trace rows were measured before insertion.  Measure only the case
+        # shell here and add the trace payload, rather than serializing the
+        # whole possibly over-limit case merely to discover its size.
+        case_without_traces = {**case, "traces": []}
+        case_size = _serialized_size(case_without_traces) + traces_payload_size
+        next_cases_payload_size = _next_array_payload_size_from_item_size(
+            cases_payload_size, len(cases), case_size
         )
-        enumeration_rows.append(
-            {
-                "context_id": context_id,
-                "future_slot_order": branch_order,
-                "candidate_trace_count": len(traces),
-            }
+        _enforce_replay_limit(
+            minimum_replay_size, next_cases_payload_size
         )
+        cases.append(case)
+        cases_payload_size = next_cases_payload_size
     diagnostic = {
         "has_findings": any(key != "compliance_feasible" and value for key, value in feasibility.items())
         or any(key != "fulfilled" and value for key, value in outcomes.items()),
         "feasibility": feasibility,
         "observed_outcomes": outcomes,
     }
-    return {
+    expected = {
         "format": CERTIFICATE_FORMAT,
         "profile": model["profile"],
         "semantics_version": SEMANTICS_VERSION,
-        "model_hash": digest(model),
+        "model_hash": model_hash,
         "engine_version": CHECKER_ENGINE_VERSION,
         "enumeration": {
             "slot_order": metadata["slot_order"],
@@ -407,6 +513,10 @@ def _reconstruct(model, metadata):
         "cases": cases,
         "diagnostics": diagnostic,
     }
+    expected_without_cases = {**expected, "cases": []}
+    exact_size = _serialized_size(expected_without_cases) + cases_payload_size
+    _enforce_replay_limit(exact_size, 0)
+    return expected
 
 
 def verify(

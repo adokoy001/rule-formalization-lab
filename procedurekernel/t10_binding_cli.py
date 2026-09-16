@@ -8,6 +8,9 @@ from .binding_checker import verify_manual_model_binding
 from .model import MAX_CERTIFICATE_BYTES, KernelError, canonical_json, load_json
 
 
+_INTERNAL_ERROR_MESSAGE = "An unexpected internal error occurred"
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Verify a manual source/model binding")
     parser.add_argument("task")
@@ -47,6 +50,20 @@ def main(argv=None) -> int:
             print(canonical_json({"status": status, "message": message, "finding": "undetermined"}))
         else:
             print(f"{status}: {message}", file=sys.stderr)
+        return 2
+    except Exception:
+        if args.json:
+            print(canonical_json({
+                "status": "INTERNAL_ERROR",
+                "message": _INTERNAL_ERROR_MESSAGE,
+                "finding": "undetermined",
+            }))
+        else:
+            print(
+                f"INTERNAL_ERROR: {_INTERNAL_ERROR_MESSAGE}\n"
+                "Verification is undetermined.",
+                file=sys.stderr,
+            )
         return 2
 
 

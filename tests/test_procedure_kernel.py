@@ -9,7 +9,13 @@ from unittest.mock import patch
 
 from procedurekernel import checker, engine
 from procedurekernel.checker import verify
-from procedurekernel.model import INT_MAX, KernelError, digest, validate_model
+from procedurekernel.model import (
+    INT_MAX,
+    KernelError,
+    canonical_json,
+    digest,
+    validate_model,
+)
 
 
 def at(tick, phase=0):
@@ -337,6 +343,76 @@ class ProcedureKernelTests(unittest.TestCase):
 
         with patch.object(engine, "MAX_CERTIFICATE_BYTES", 1):
             self.assert_status("LIMIT_REACHED", engine.analyze, base_model())
+
+    def test_incremental_certificate_limit_stops_producer_and_checker_replay_early(self):
+        model = base_model(contexts=[{
+            "id": "many",
+            "observation_end": at(1),
+            "observed": [observed("start", 0)],
+            "future": [{"slot": "finish", "at": [at(tick) for tick in range(1, 21)]}],
+        }])
+        certificate = engine.analyze(model)
+        metadata = validate_model(model)
+        enumeration_rows = certificate["enumeration"]["contexts"]
+
+        producer_minimum = engine._minimum_certificate_size(
+            model, metadata, enumeration_rows, digest(model)
+        )
+        first_two_trace_bytes = sum(
+            len(canonical_json(trace).encode("utf-8"))
+            for trace in certificate["cases"][0]["traces"][:2]
+        ) + 1
+        producer_limit = producer_minimum + first_two_trace_bytes
+        producer_evaluate = engine._evaluate
+        with (
+            patch.object(engine, "MAX_CERTIFICATE_BYTES", producer_limit),
+            patch.object(engine, "_evaluate", wraps=producer_evaluate) as evaluated,
+        ):
+            self.assert_status("LIMIT_REACHED", engine.analyze, model)
+        self.assertEqual(evaluated.call_count, 3)
+        self.assertLess(
+            evaluated.call_count,
+            certificate["enumeration"]["total_candidate_traces"],
+        )
+
+        checker_minimum = checker._minimum_replay_size(
+            model, metadata, enumeration_rows, digest(model)
+        )
+        checker_limit = checker_minimum + first_two_trace_bytes
+        checker_replay = checker._replay_state
+        with (
+            patch.object(checker, "MAX_CERTIFICATE_BYTES", checker_limit),
+            patch.object(checker, "_replay_state", wraps=checker_replay) as replayed,
+        ):
+            # A tiny invalid candidate gets past the input-size guard, allowing
+            # this test to exercise the independent replay's own byte guard.
+            self.assert_status("LIMIT_REACHED", verify, model, {})
+        self.assertEqual(replayed.call_count, 3)
+        self.assertLess(
+            replayed.call_count,
+            certificate["enumeration"]["total_candidate_traces"],
+        )
+
+    def test_exact_certificate_byte_boundary_preserves_output_and_hash(self):
+        model = base_model()
+        certificate = engine.analyze(model)
+        certificate_size = len(canonical_json(certificate).encode("utf-8"))
+        self.assertEqual(
+            digest(certificate),
+            "a559e83058fade1312e19496daf3baf5660eba9547b1d8aa3439be7984faf93f",
+        )
+
+        with patch.object(engine, "MAX_CERTIFICATE_BYTES", certificate_size):
+            boundary_certificate = engine.analyze(model)
+        self.assertEqual(boundary_certificate, certificate)
+        self.assertEqual(digest(boundary_certificate), digest(certificate))
+        with patch.object(checker, "MAX_CERTIFICATE_BYTES", certificate_size):
+            self.assertEqual(verify(model, certificate)["status"], "VERIFIED")
+
+        with patch.object(engine, "MAX_CERTIFICATE_BYTES", certificate_size - 1):
+            self.assert_status("LIMIT_REACHED", engine.analyze, model)
+        with patch.object(checker, "MAX_CERTIFICATE_BYTES", certificate_size - 1):
+            self.assert_status("LIMIT_REACHED", verify, model, certificate)
 
     def test_checker_is_independent_of_producer_module(self):
         tree = ast.parse(Path(checker.__file__).read_text(encoding="utf-8"))

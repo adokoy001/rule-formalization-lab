@@ -287,6 +287,88 @@ def _witness(index: int, trace: dict) -> dict:
     return {"trace_index": index, "choice": trace["choice"]}
 
 
+def _canonical_size(value: object) -> int:
+    return len(canonical_json(value).encode("utf-8"))
+
+
+def _array_payload_size(current_size: int, current_count: int, value: object) -> int:
+    """Return the exact canonical bytes stored between an array's brackets."""
+
+    return _array_payload_size_from_item_size(
+        current_size, current_count, _canonical_size(value)
+    )
+
+
+def _array_payload_size_from_item_size(
+    current_size: int, current_count: int, item_size: int
+) -> int:
+    return current_size + (1 if current_count else 0) + item_size
+
+
+def _minimum_certificate_size(
+    model: dict,
+    metadata: dict,
+    enumeration_contexts: list[dict],
+    model_hash: str,
+) -> int:
+    """Return a proven lower bound before any case payload is included.
+
+    Every final counter is a non-negative integer, so ``0`` has the shortest
+    possible canonical representation.  ``true`` is also the shorter JSON
+    boolean.  All other fields below are already final.  Replacing the empty
+    ``cases`` array with its payload can therefore only increase this size.
+    """
+
+    feasibility = {
+        "background_trace_impossible": 0,
+        "normatively_infeasible": 0,
+        "compliance_feasible": 0,
+        "completion_unresolved": 0,
+    }
+    outcomes = {
+        "fulfilled": 0,
+        "pending": 0,
+        "violated": 0,
+        "unresolved_anchor": 0,
+        "unresolved_time": 0,
+        "background_violated": 0,
+    }
+    minimum = {
+        "format": CERTIFICATE_FORMAT,
+        "profile": model["profile"],
+        "semantics_version": SEMANTICS_VERSION,
+        "model_hash": model_hash,
+        "engine_version": ENGINE_VERSION,
+        "enumeration": {
+            "slot_order": metadata["slot_order"],
+            "context_order": metadata["context_order"],
+            "contexts": enumeration_contexts,
+            "context_count": 0,
+            "total_candidate_traces": metadata["total_candidate_traces"],
+        },
+        "counts": {
+            "total_contexts": 0,
+            "feasibility": feasibility,
+            "observed_outcomes": outcomes,
+        },
+        "cases": [],
+        "diagnostics": {
+            "has_findings": True,
+            "feasibility": feasibility,
+            "observed_outcomes": outcomes,
+        },
+    }
+    return _canonical_size(minimum)
+
+
+def _ensure_within_certificate_limit(minimum_size: int, payload_size: int) -> None:
+    if minimum_size + payload_size > MAX_CERTIFICATE_BYTES:
+        raise KernelError(
+            "LIMIT_REACHED",
+            f"Certificate would exceed {MAX_CERTIFICATE_BYTES} bytes",
+        )
+
+
 def analyze(
     model: object,
     *,
@@ -304,6 +386,22 @@ def analyze(
     contexts = {context["id"]: context for context in model["contexts"]}
     cases = []
     enumeration_contexts = []
+    for context_id in metadata["context_order"]:
+        context = contexts[context_id]
+        future_order = sorted(branch["slot"] for branch in context["future"])
+        enumeration_contexts.append(
+            {
+                "context_id": context_id,
+                "future_slot_order": future_order,
+                "candidate_trace_count": metadata["candidate_counts"][context_id],
+            }
+        )
+    model_hash = digest(model)
+    minimum_certificate_size = _minimum_certificate_size(
+        model, metadata, enumeration_contexts, model_hash
+    )
+    _ensure_within_certificate_limit(minimum_certificate_size, 0)
+    cases_payload_size = 0
 
     feasibility_names = (
         "background_trace_impossible",
@@ -331,17 +429,25 @@ def analyze(
             for slot_id in future_order
         ]
         traces = []
+        traces_payload_size = 0
         for values in product(*option_lists):
             selected = dict(zip(future_order, values))
             events = _event_map(context, selected)
             evaluation = _evaluate(model, context, events)
-            traces.append(
-                {
-                    "choice": {slot: selected[slot] for slot in future_order},
-                    "events": _stored_events(events, slots),
-                    **evaluation,
-                }
+            trace = {
+                "choice": {slot: selected[slot] for slot in future_order},
+                "events": _stored_events(events, slots),
+                **evaluation,
+            }
+            next_traces_payload_size = _array_payload_size(
+                traces_payload_size, len(traces), trace
             )
+            _ensure_within_certificate_limit(
+                minimum_certificate_size,
+                cases_payload_size + next_traces_payload_size,
+            )
+            traces.append(trace)
+            traces_payload_size = next_traces_payload_size
 
         background_indices = [
             index for index, trace in enumerate(traces) if trace["background_possible"]
@@ -370,35 +476,39 @@ def analyze(
         observed_outcome = _observed_outcome(observed_evaluation)
         feasibility_counts[classification] += 1
         outcome_counts[observed_outcome] += 1
-        cases.append(
-            {
-                "context_id": context_id,
-                "observation_end": context["observation_end"],
-                "observed_events": _stored_events(observed_events, slots),
-                "future_slot_order": future_order,
-                "candidate_trace_count": len(traces),
-                "classification": classification,
-                "observed_outcome": observed_outcome,
-                "observed_evaluation": observed_evaluation,
-                "background_trace_count": len(background_indices),
-                "viable_trace_count": len(viable_indices),
-                "satisfying_trace_count": len(satisfying_indices),
-                "first_background_witness": (
-                    None if not background_indices else _witness(background_indices[0], traces[background_indices[0]])
-                ),
-                "first_compliance_witness": (
-                    None if not satisfying_indices else _witness(satisfying_indices[0], traces[satisfying_indices[0]])
-                ),
-                "traces": traces,
-            }
+        case = {
+            "context_id": context_id,
+            "observation_end": context["observation_end"],
+            "observed_events": _stored_events(observed_events, slots),
+            "future_slot_order": future_order,
+            "candidate_trace_count": len(traces),
+            "classification": classification,
+            "observed_outcome": observed_outcome,
+            "observed_evaluation": observed_evaluation,
+            "background_trace_count": len(background_indices),
+            "viable_trace_count": len(viable_indices),
+            "satisfying_trace_count": len(satisfying_indices),
+            "first_background_witness": (
+                None if not background_indices else _witness(background_indices[0], traces[background_indices[0]])
+            ),
+            "first_compliance_witness": (
+                None if not satisfying_indices else _witness(satisfying_indices[0], traces[satisfying_indices[0]])
+            ),
+            "traces": traces,
+        }
+        # The traces have already been measured individually.  Replacing an
+        # empty trace array with their payload yields the exact case size and
+        # avoids constructing a possibly over-limit serialization to measure it.
+        case_without_traces = {**case, "traces": []}
+        case_size = _canonical_size(case_without_traces) + traces_payload_size
+        next_cases_payload_size = _array_payload_size_from_item_size(
+            cases_payload_size, len(cases), case_size
         )
-        enumeration_contexts.append(
-            {
-                "context_id": context_id,
-                "future_slot_order": future_order,
-                "candidate_trace_count": len(traces),
-            }
+        _ensure_within_certificate_limit(
+            minimum_certificate_size, next_cases_payload_size
         )
+        cases.append(case)
+        cases_payload_size = next_cases_payload_size
 
     diagnostics = {
         "has_findings": any(name != "compliance_feasible" and count for name, count in feasibility_counts.items())
@@ -410,7 +520,7 @@ def analyze(
         "format": CERTIFICATE_FORMAT,
         "profile": model["profile"],
         "semantics_version": SEMANTICS_VERSION,
-        "model_hash": digest(model),
+        "model_hash": model_hash,
         "engine_version": ENGINE_VERSION,
         "enumeration": {
             "slot_order": metadata["slot_order"],
@@ -427,9 +537,10 @@ def analyze(
         "cases": cases,
         "diagnostics": diagnostics,
     }
-    size = len(canonical_json(certificate).encode("utf-8"))
-    if size > MAX_CERTIFICATE_BYTES:
-        raise KernelError(
-            "LIMIT_REACHED", f"Certificate would exceed {MAX_CERTIFICATE_BYTES} bytes"
-        )
+    # Replacing this empty array with the already measured array payload gives
+    # the exact full certificate size without allocating a second full JSON
+    # serialization beside the materialized evidence.
+    certificate_without_cases = {**certificate, "cases": []}
+    exact_size = _canonical_size(certificate_without_cases) + cases_payload_size
+    _ensure_within_certificate_limit(exact_size, 0)
     return certificate

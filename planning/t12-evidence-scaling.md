@@ -1,6 +1,6 @@
 # T12 証拠容量・ピークメモリ対策
 
-2026-09-16設計。**提案を計画へ採用した段階で、runtime、証拠形式、上限値はまだ変更していない。**
+2026-09-16設計、同日基礎実装。**`finite-decisions/1` の基礎 `check` に境界セルとcompact JSON Linesを追加した。T12全体は継続中で、上限値、旧証拠形式、diff/reachability、norm/procedureの証拠形式は変更していない。**
 
 ## 1. 結論
 
@@ -66,7 +66,7 @@ checkerはproducerのpartitionを信用せず、モデル構文からcutを再�
 | broken | 416 | `0..15`, `16..17`, `18..19`, `20..24`, `25` | 80 | 0 |
 | fixed | 416 | `0..15`, `16..17`, `18..24`, `25` | 64 | 0 |
 
-ここで確認した分裂は、同じBool割当のクラス内でadmitted、enabled、effectiveが変わらないという範囲である。compact certificateと独立checkerを実装・検査した結果ではない。
+この試算後にcompact producerと独立checkerを実装し、旧全数経路との全照会対照を行った。問題版は80セル・35,360 bytes、修正版は64セル・28,309 bytesとなり、旧全数証拠と同じ照会件数・witnessを返した。保存hash、実行コマンド、負例は[検証記録](../docs/verification-t12-2026-09-16.md)に分ける。
 
 T06の13 Bool静的matrixは整数軸を持たないため、この方法では8,192クラスのままである。整数`case_id`だけを持ち規則が常時成立する境界familyは意味上1クラスにできるが、旧T06は1 contextずつの証拠容量を測るfixtureなので、新形式の値で旧境界を置き換えない。T12の別benchmarkとして比較する。
 
@@ -115,3 +115,15 @@ producerは同一filesystemの一時fileへ書き、flush/fsync後にcheckerで�
 7. **T12.6 探索時間**: 測定で必要なら自前CNF/DPLLへ進み、全列挙できる小空間で変換と結果を独立対照する。
 
 完了条件は、旧形式の回帰、全数対照、独立checker、改ざん拒否、失敗時の非公開、測定値をすべて満たすこと。代表点で同じ結果が出た例だけでは、全域の検証完了としない。
+
+## 8. 2026-09-16時点の実装範囲
+
+- **T12.0 一部完了**: 旧 `finite-decisions-certificate/1` と歴史的T06 reportを維持し、別形式 `finite-decisions-compact-jsonl/1` を追加した。既存 `rulekernel` CLIのsource binding移行と想定外例外契約は未実施。
+- **T12.1 一部完了**: compact CLIに捕捉可能な想定外例外のexit 2、同一directoryの一時file、生成後の独立検査、既存pathを置換しないatomic publication、保証下限preflight、record追加前の正確なbytes検査を実装した。norm/procedureに証拠圧縮は入れていない。
+- **T12.2 基礎checkで完了**: 定数比較とfactsからcut、代表値、重み、元indexを導出し、整数変数間比較は全整数軸の単一値セルへfallbackする。小空間で旧全列挙と対照した。
+- **T12.3 基礎checkで完了**: producerから独立したcheckerがpartition、cell、重み、集計、witness、具体case列を再構成する。club20の保存証拠で旧結果との一致を確認した。
+- **T12.4 基礎checkで完了**: strict JSON Lines、二つの逐次commitment、逐次checker、構造・encoding・commitment変異の拒否、atomic publicationを実装した。virtual commitmentのため全具体状況の逐次再評価は残る。
+- **T12.5 未完了**: club20とT06境界入力1件の実測は保存したが、整数境界、等値、領域外定数、複数整数を組み合わせた反復benchmarkとPython peak allocationの正式な再測定は未実施。
+- **T12.6 未着手**: SAT化、CNF変換、自前DPLLは実装していない。探索時間が実測上の制約になってから判断する。
+
+実装仕様は[compact証拠 v0.1](../docs/compact-certificate-v0.1.md)を参照する。現在も具体状況10,000、証拠8 MiBのhard capを維持する。`diff`、`reachability`、norm、procedureの圧縮は保証範囲に含めない。

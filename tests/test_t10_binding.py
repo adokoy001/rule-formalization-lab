@@ -368,6 +368,45 @@ class T10BindingTests(unittest.TestCase):
         self.assertEqual(json.loads(stdout.getvalue())["status"], "BINDING_INVALID")
         self.assertNotIn("Traceback", stdout.getvalue() + stderr.getvalue())
 
+    def test_cli_unexpected_error_is_sanitized_in_json_and_human_modes(self):
+        secret = "private binding input from RuntimeError"
+        base_arguments = [
+            str(PACK / "task.json"),
+            str(PACK / "candidate.json"),
+            str(PACK / "review.json"),
+            str(PACK / "model.json"),
+            str(PACK / "certificate.json"),
+            str(PACK / "binding.json"),
+            str(SOURCE / "source-spec.json"),
+            str(SOURCE / "bundle"),
+        ]
+        for json_mode in (False, True):
+            with self.subTest(json_mode=json_mode):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                arguments = [*base_arguments, *(["--json"] if json_mode else [])]
+                with patch.object(
+                    binding_cli,
+                    "verify_manual_model_binding",
+                    side_effect=RuntimeError(secret),
+                ):
+                    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                        code = binding_cli.main(arguments)
+                output = stdout.getvalue() + stderr.getvalue()
+                self.assertEqual(code, 2)
+                self.assertNotIn(secret, output)
+                self.assertNotIn("Traceback", output)
+                if json_mode:
+                    self.assertFalse(stderr.getvalue())
+                    self.assertEqual(json.loads(stdout.getvalue()), {
+                        "finding": "undetermined",
+                        "message": "An unexpected internal error occurred",
+                        "status": "INTERNAL_ERROR",
+                    })
+                else:
+                    self.assertFalse(stdout.getvalue())
+                    self.assertIn("INTERNAL_ERROR", stderr.getvalue())
+                    self.assertIn("Verification is undetermined.", stderr.getvalue())
+
 
     def test_checker_rejects_source_spec_swap_immediately_after_source_verify(self):
         with tempfile.TemporaryDirectory() as temporary:

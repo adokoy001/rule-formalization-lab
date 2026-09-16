@@ -1,6 +1,6 @@
 # 段階拡張の作業チケット
 
-2026-09-15作成・2026-09-16更新。**T01〜T10とT03.1は各限定profileの実装・独立検査・記録まで完了。次はT11。**
+2026-09-15作成・2026-09-16更新。**T01〜T10とT03.1は各限定profileで完了し、T12は決定の基礎検査向けsliceを実装。次の法領域はT11。**
 全体像は[拡張計画](legal-scale-roadmap.md)、着手用の依頼文は[引継ぎ](sol-handoff.md)。
 
 完了の証拠と実測値は[T01〜T03検証記録](../docs/verification-t01-t03-2026-09-15.md)、[T04検証記録](../docs/verification-t04-2026-09-15.md)、[T05検証記録](../docs/verification-t05-2026-09-15.md)、[T03.1検証記録](../docs/verification-t03.1-2026-09-15.md)、[T06検証記録](../docs/verification-t06-2026-09-15.md)、[T07検証記録](../docs/verification-t07-2026-09-16.md)、[T08検証記録](../docs/verification-t08-2026-09-16.md)にまとめた。
@@ -24,7 +24,7 @@ T12/T13は必要性が生じたときに入れる。T06では証拠容量が先�
 | T09 | 完了 | イベント列・時間 | T08 | 小さな手続で期限・順序・観測打切り・境界を検査 |
 | T10 | 完了 | 刑訴法の最小pack | T04/T05/T09 | 55条・203〜206条周辺の採用部分と依存先を検査 |
 | T11 | 次 | 刑法の次の論点 | T07/T08 | 43・44条等の候補を一つ選び、必要な裁量/参照の意味を追加 |
-| T12 | 設計済み・未実装 | 証拠付き高速化 | T06の測定で必要と判明 | 境界値クラス、省サイズ証拠、逐次処理、上限・失敗契約を独立検査付きで導入 |
+| T12 | 基礎実装・継続 | 証拠付き容量対策 | T06の測定で必要と判明 | decision checkの境界セル・JSONL・独立検査・失敗契約を実装。ほかの経路と探索高速化は継続 |
 | T13 | 未着手 | LLM候補支援 | T05/独立gold | 候補生成・意味lint・保留・修正・未見評価 |
 | T14 | 未着手 | 章・法令横断と全体台帳 | 対象packの完了 | 全体の棚卸しと、実際に意味検査した範囲を区別 |
 
@@ -169,7 +169,7 @@ task、candidate、`manual_fixture_review`、coverage全5件、model、certifica
 ## T11〜T14: 必要に応じた拡張
 
 - **T11 刑法の次の論点**: 43・44条などを一つ選ぶ。裁量として許される選択肢、条件付きの必要な効果、各則参照を先に仕様化する。単なるtrue/falseの衝突にしない。評価概念そのものを判定しない場合は入力前提を記録する。
-- **T12 証拠処理・高速化**: [設計メモ](t12-evidence-scaling.md)に、捕捉可能な想定外例外のexit 2、確実な下限だけを使うpreflight、整数境界から導く重み付き同値類、別versionのcompact certificate、strict JSON Linesによる逐次生成・検査を分けて固定した。変数間整数比較は初版で圧縮せず、diffは左右の境界を合わせ、checkerがpartitionと全範囲被覆を独自再構成する。逐次化だけでは証拠容量や全積上限を解消しない。case列を省く場合は、長さ区切りとdomain separationを持つ全列commitment等をproducerが保存し、欠落・重複・途中切断・偽集計を拒否する。T06の歴史的source bindingを移行してから公開CLIを変更し、旧参照経路と小さな全数問題・変異テストを維持する。探索時間が制約になった場合だけ自前DPLL/CNFへ進む。
+- **T12 証拠処理・容量対策**: [設計メモ](t12-evidence-scaling.md)のうち、decision check向けの整数境界同値セル、重み、元の先頭index、別versionのstrict JSON Lines証拠、確実な下限preflight、正確な逐次bytes上限、独立checker、全 concrete case commitmentを実装した。変数間整数比較では全整数軸をsingletonへ戻す。Club20とT06 check失敗endpointを旧全列挙と対照し、改ざん・切断・外部hash・atomic保存を固定した。norm/procedure/T10 binding CLIの想定外例外もexit 2へ揃え、procedureは証拠bytesを増分検査する。diff・到達可能性・段階別到達可能性・規範/手続のJSONL化、全積上限超え、自前DPLL/CNF、旧rule CLIの移行は未実装である。[compact仕様](../docs/compact-certificate-v0.1.md)と[T12検証記録](../docs/verification-t12-2026-09-16.md)を参照する。
 - **T13 LLM支援**: 少数の架空goldから候補生成と修正を試し、その後に限定法令packへ進む。原文をまたぐ未見評価、否定/例外/単位/参照の誤訳、全保留による偽の合格を検査。実装を進めるコーディングモデルの利用と、製品へのLLM接続は別。
 - **T14 全体台帳**: 法令全体を条項単位で棚卸しし、formalized/partial/unresolved/out_of_scopeを固定分母で記録。章・他法令間の依存を追跡。新しい法令版で影響するpackとレビューをstaleにする。構造検査の完了と意味検査の完了を別々に報告する。
 

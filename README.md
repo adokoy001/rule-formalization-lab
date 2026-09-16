@@ -48,6 +48,7 @@ flowchart LR
 | 区分 | 内容 |
 |---|---|
 | **実装済み** | 6規則・20規則の架空規約について、決定の衝突、必要な結論の抜け（gap）、改定差分、規則の到達可能性を有限範囲で検査する |
+| **実装済み** | 決定の基礎検査について、整数境界の同値セルとstrict JSON Linesを使う省サイズ証拠を逐次生成し、別実装のcheckerで再検査する |
 | **実装済み** | 手書きした、時間を持たない義務・禁止・明示的許可について、背景上の不能と規範上の履行不能を分けて検査する |
 | **実装済み** | 架空手続の有限イベント列について、順序、包含期限、禁止期間、排他的な観測終了、未確定を分けて検査する |
 | **実装済み** | 原文packageと手書き解釈IRから、限定的な決定規則を有限Coreへ決定的に変換し、独立checkerでoffline再検査する |
@@ -73,6 +74,8 @@ python3 -m rulekernel check examples/club-broken.json
 python3 -m rulekernel check examples/club-fixed.json
 python3 -m rulekernel check examples/club20/broken.json
 python3 -m rulekernel check examples/club20/fixed.json
+python3 -m compactkernel estimate examples/club20/fixed.json
+python3 -m compactkernel verify examples/club20/fixed.json examples/club20/fixed.compact.jsonl
 python3 -m normkernel verify examples/norms/t08-three-way/model.json \
   examples/norms/t08-three-way/certificate.json \
   --expected-certificate-sha256 a61cbda1b788a60e11988cda9a8468b14b5bf4e098f701c1435c867dda448b8a
@@ -118,6 +121,18 @@ python3 -m unittest discover -s tests -v
 ```
 
 各`verify*`は期待するモデルを必ず別に指定する。証拠はモデル全体のハッシュと結び付き、背景で除外した状況も含めて全入力の処理記録を持つ。枝抜け、偽の例外処理、集計改ざん、モデル差替えを拒否する。
+
+決定の基礎検査には、別形式のcompact証拠も使える。
+
+```bash
+python3 -m compactkernel estimate examples/club20/fixed.json --json
+python3 -m compactkernel check examples/club20/fixed.json \
+  --certificate /tmp/club20-fixed.compact.jsonl --json
+python3 -m compactkernel verify examples/club20/fixed.json \
+  /tmp/club20-fixed.compact.jsonl --json
+```
+
+この経路は、整数を比較に現れる定数の境界で閉区間へ分け、同じ結果になるセルを重み付きで保存する。checkerは境界、全範囲、件数、最初の具体例、commitmentを独自に再構成する。整数変数同士の比較がある場合は整数軸をsingletonへ戻す。元の全積10,000と証拠8 MiBの上限は維持し、現在の対象は`check`相当だけである。形式と保証境界は[compact証拠仕様](docs/compact-certificate-v0.1.md)を参照する。
 
 `--max-contexts N`で列挙予算を下げられる（初期値・Cartesian積のハード上限10,000）。これは10,000状況を常に処理できるという保証ではない。入力モデル1 MiB、証拠8 MiBの上限も独立に適用され、先に達した上限で`LIMIT_REACHED`になる。証拠量はコマンド、出力数、有効な規則ID、値、背景適合率などに依存し、左右の出力snapshotを持つ`diff`は特に大きい。factsで絞っていても、初期実装では宣言した全Cartesian積が列挙予算の対象。打切り時に「衝突なし」を返さず、部分証拠も保存しない。
 

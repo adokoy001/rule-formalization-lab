@@ -134,6 +134,28 @@ T02/T03の実装後に、基礎検査の[問題版証拠](broken.certificate.jso
 全て別CLIコマンドで再検査済み。差分と到達可能性の件数・hash・全124テストの記録は
 [T01〜T03検証記録](../../docs/verification-t01-t03-2026-09-15.md)を参照する。
 
+## T12のcompact基礎証拠
+
+2026-09-16に、整数境界で意味が同じ入力を重み付きセルへまとめる別形式の証拠を追加した。問題版は416状況から80セル・35,360 bytes、修正版は416状況から64セル・28,309 bytesになった。旧全数証拠からのbytes減少はそれぞれ60.56%、68.34%。照会件数と最初の具体witnessは旧全数証拠と一致する。
+
+```bash
+python3 -m compactkernel estimate examples/club20/broken.json --json
+python3 -m compactkernel check examples/club20/broken.json \
+  --certificate /tmp/club20-broken.compact.jsonl --json
+python3 -m compactkernel verify examples/club20/broken.json \
+  /tmp/club20-broken.compact.jsonl \
+  --expected-certificate-sha256 1ac37d4180f1ea16a16e4c900f356070e3c756233cfadf1cd650318102b7e18f --json
+python3 -m compactkernel verify examples/club20/fixed.json \
+  examples/club20/fixed.compact.jsonl \
+  --expected-certificate-sha256 dff0123181c20d6df46bd3b9662c378352796b44404fe32b49fa90dd63c3c8b8 --json
+```
+
+`check` の出力先には未作成のpathを指定する。compact CLIは既存証拠を置き換えないため、同じ例を再実行するときは別名を使う。
+
+保存した [問題版compact証拠](broken.compact.jsonl) と [修正版compact証拠](fixed.compact.jsonl) はstrict JSON Linesで、別実装のcheckerがpartition、全cell、集計、witness、具体case列のcommitmentを再構成する。形式、上限、信頼境界は[compact証拠仕様](../../docs/compact-certificate-v0.1.md)、実測と負例は[T12検証記録](../../docs/verification-t12-2026-09-16.md)を参照する。
+
+この経路は基礎 `check` だけを対象とする。具体状況10,000と証拠8 MiBの上限は維持し、整数変数同士を比較するモデルは整数軸を全列挙へ戻す。`diff`、`reachability`、norm、procedureはこの形式で圧縮しない。
+
 モデルhash：
 
 - 問題版：`20aeabd231fccfc1e6773c7eb21a9600110b6997e3d4cc475f7b106658c080ae`
