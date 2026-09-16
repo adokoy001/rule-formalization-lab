@@ -62,6 +62,7 @@
 - 段階別診断は単純な原子整数比較以外の一般的な論理矛盾・範囲外理由、最小原因、修正案を判定しない。`expected_inactive`の正しさとT05 source/review chainは別のホストレビュー・checkerに依存する。
 - T06測定CLIはreport出力pathと入力pathの同一性を拒否せず、長時間run中の入力変更をsnapshotまたは開始前後hashで排除しない。正式runは分離pathを使い、完了後のbinding一致を確認したが、実行中ずっと不変だったことまでは証明しない。report checkerは測定時hashを現在の同一source pathへ照合するため、後続の正当なsource変更でも歴史的reportがstaleになる。測定時source snapshotとcurrent-source状態の分離は未実装。
 - 自前SATによる高速化、CNF変換、画面、カーネルの機械証明。
+- [T12の容量対策](planning/t12-evidence-scaling.md)は設計済みだが未実装。境界値同値類、compact certificate、逐次証拠、確実な下限preflight、捕捉可能な想定外例外のexit 2は、旧全列挙との対照と独立checkerを通るまで現在の保証へ含めない。
 
 今回の`finite-decisions/1`と手書き変換profileは将来計画の`finite-rules/1`の小さな部分。24課題がすべて解消したという意味ではない。原文・候補・review・Coreの対応と固定gold例は検査できるが、自然文との意味対応そのものは未検証。
 
