@@ -185,6 +185,8 @@ class SourceRoundTripTests(SourcePackageTestCase):
              "baeba5fb46ac6fb33aa5a31983ea58ab9d2a484cc26222dec256fb26f27bec50"),
             ("penal-code-41",
              "60da7e094d2a8a7d5b1dbb7addf93e9af5ff573fa6cc56f430b499e7b9003060"),
+            ("criminal-procedure-55-203-206",
+             "6c8510b9c9022c6d4974bd1cc00fffdcd85b1ca4547f1027c644b68c5dc9a7fe"),
         )
         with mock.patch("socket.socket", side_effect=AssertionError("network access")):
             for name, expected_hash in cases:
@@ -220,6 +222,16 @@ class SourceRoundTripTests(SourcePackageTestCase):
             self.assertEqual((bundle / "derived/source.txt").read_bytes(), expected.encode("utf-8"))
             checked = verify_source_package(spec, bundle)
             self.assertEqual(checked, result)
+
+    def test_lock_json_scalar_type_changes_are_rejected_without_external_anchor(self):
+        with tempfile.TemporaryDirectory() as temp:
+            spec, bundle, _ = self.create_fictional(temp)
+            lock_path = bundle / "bundle.lock.json"
+            lock = json.loads(lock_path.read_bytes())
+            count = lock["source_unit_manifest"]["units"]["count"]
+            lock["source_unit_manifest"]["units"]["count"] = float(count)
+            lock_path.write_bytes(source_canonical_json(lock).encode("utf-8"))
+            self.assert_status("SOURCE_INVALID", verify_source_package, spec, bundle)
 
     def test_checker_has_no_network_or_producer_dependency(self):
         with tempfile.TemporaryDirectory() as temp:

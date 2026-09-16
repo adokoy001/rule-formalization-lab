@@ -443,8 +443,8 @@ def verify_source_package(spec_or_path, bundle_path, *, expected_bundle_sha256=N
                         metadata_bytes=None if metadata is None else len(metadata))
     _canonical_artifact(units_bytes, maximum=MAX_MANIFEST_BYTES,
                         label="derived/source-units.json")
-    lock = _canonical_artifact(lock_bytes, maximum=MAX_MANIFEST_BYTES,
-                               label="bundle.lock.json")
+    _canonical_artifact(lock_bytes, maximum=MAX_MANIFEST_BYTES,
+                        label="bundle.lock.json")
 
     derived_text, rows = _expected_units(spec, raw)
     expected_text_bytes = derived_text.encode("utf-8")
@@ -478,7 +478,8 @@ def verify_source_package(spec_or_path, bundle_path, *, expected_bundle_sha256=N
                 ref["status"] == "unresolved" for ref in spec["references"]),
         },
     }
-    if lock != expected_lock:
+    expected_lock_bytes = source_canonical_json(expected_lock).encode("utf-8")
+    if lock_bytes != expected_lock_bytes:
         _fail("Package lock differs from independently reconstructed artifacts")
 
     return {

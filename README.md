@@ -49,9 +49,11 @@ flowchart LR
 |---|---|
 | **実装済み** | 6規則・20規則の架空規約について、決定の衝突、必要な結論の抜け（gap）、改定差分、規則の到達可能性を有限範囲で検査する |
 | **実装済み** | 手書きした、時間を持たない義務・禁止・明示的許可について、背景上の不能と規範上の履行不能を分けて検査する |
+| **実装済み** | 架空手続の有限イベント列について、順序、包含期限、禁止期間、排他的な観測終了、未確定を分けて検査する |
 | **実装済み** | 原文packageと手書き解釈IRから、限定的な決定規則を有限Coreへ決定的に変換し、独立checkerでoffline再検査する |
 | **暫定例** | 刑法41条の一部分を手で解釈したモデルを12状況で再検査する。法律専門家による意味確認は未実施 |
-| **未実装** | 自然文からの自動形式化、LLM接続、一般的な意味lint、期限・イベント列、法律専門家が確認した実法令モデル、自前SAT、画面 |
+| **暫定例** | 刑事訴訟法203条から205条の標準的な三つの数値期限を13例で診断する。手作業reviewであり、適法・違法は判定しない |
+| **未実装** | 自然文からの自動形式化、LLM接続、一般的な意味lint、暦・反復event・一般の法的推論、法律専門家が確認した実法令モデル、自前SAT、画面 |
 | **対象外** | 刑法・刑事訴訟法全体の正しさの判定、個別事件への適用、法律相談 |
 
 正確な実装状況と検証記録は[STATUS.md](STATUS.md)、変更理由と未解決点は[開発日誌](devlog/README.md)から確認できます。
@@ -204,6 +206,35 @@ python3 -m normkernel verify \
 再構成する。保存証拠は`VERIFIED`だが注意対象があるためexit 1である。
 固定hash、負例、保証境界は[T08検証記録](docs/verification-t08-2026-09-16.md)にある。
 
+## 有限の手続・時間を再検査する
+
+[T09架空申請手続](examples/procedures/t09-application/README.md)は、申請、受領、審査、決定、通知を
+有限event slotとして扱う`finite-procedure-time/1`の保存例です。`(tick, phase)`、包含期限、
+strict/non-strict順序、部分禁止、排他的`observation_end`を別profileで固定しています。
+
+```bash
+python3 -m procedurekernel verify examples/procedures/t09-application/model.json examples/procedures/t09-application/certificate.json --expected-certificate-sha256 4d034bb60c7a038fde3747ef26202e6b14a7d560360da200a2efbd438a71bca7 --json
+```
+
+全16 contextを独立checkerが再構成します。保存例は期限違反、背景不能、未確定を意図的に含むため、
+証拠は`VERIFIED`でもexit 1です。宣言した有限候補以外の実時間を網羅した結果ではありません。
+
+## 刑事訴訟法203条から205条の限定packを再検査する
+
+[T10限定pack](examples/procedures/t10-criminal-procedure-203-205/README.md)は、e-Govの固定版から
+55条・203条から206条の5 source unitを保存し、203条の身体拘束後48時間、205条の受領後24時間と
+身体拘束後72時間を別々に診断します。勾留請求又は公訴提起をany-ofとして扱い、送致手続と受領を
+別eventにします。206条の評価は未解決のまま残し、数値超過を自動で消しません。
+
+```bash
+python3 -m procedurekernel.t10_binding_cli examples/procedures/t10-criminal-procedure-203-205/task.json examples/procedures/t10-criminal-procedure-203-205/candidate.json examples/procedures/t10-criminal-procedure-203-205/review.json examples/procedures/t10-criminal-procedure-203-205/model.json examples/procedures/t10-criminal-procedure-203-205/certificate.json examples/procedures/t10-criminal-procedure-203-205/binding.json examples/sources/criminal-procedure-55-203-206/source-spec.json examples/sources/criminal-procedure-55-203-206/bundle --expected-binding-sha256 e76cf9be471e45a5f83cb35083c15470f8f4ff3be6c1424ad3e97aec3b126811 --json
+```
+
+結果`MANUAL_MODEL_BINDING_VERIFIED`は、source unitの全文quote、coverage、手作業candidate/review、
+有限モデル、証拠の同一chainを再構成できたことを表します。`semantic_lowering_proved`と
+`legal_conclusion`はfalseです。原文の唯一の正しい解釈、個別事件、手続全体の適法性を保証しません。
+固定値と負例は[T10検証記録](docs/verification-t10-2026-09-16.md)にあります。
+
 ## scope期待つきで段階別到達可能性を調べる
 
 [星見クラブ資料形式fixture](examples/interpretations/handbook-scope/README.md)は、age 0〜25の範囲で第19条の成立例を期待し、26歳以上を条件とする第20条は非発火を期待する。先に上の`verify-interpretation`相当の検査で原文・review chainを確認し、そのCoreとscope expectationsを次へ渡す。
@@ -263,10 +294,12 @@ python3 -m benchmarks.t06.report_checker \
 - 別profile`finite-norms/1`で、有限状況ごとのBoolean行動候補、義務、禁止、明示的許可を検査する。
 - 背景上の行動不能、義務・禁止の履行不能、遵守可能、対象外を分け、許可の行使・非行使候補も保存する。
 - 規範producerとは別実装のcheckerが全trace、分類、permission集計を再構成する。
+- 別profile`finite-procedure-time/1`で、最大8個の一回限りevent slot、`(tick, phase)`、先後、期限、禁止窓、closed prefixを有限全列挙する。
+- T10では刑事訴訟法の固定版5 source unitと手作業reviewを、三つの数値期限、13 context、procedure certificateへhash結合し、別checkerで再構成する。
 
-仕様は [kernel-v0.1](docs/kernel-v0.1.md)、[改定差分](docs/diff-v0.1.md)、[到達可能性](docs/reachability-v0.1.md)、[段階別到達可能性](docs/staged-reachability-v0.1.md)、[原文package](docs/source-package-v0.1.md)、[手書き解釈IR](docs/interpretation-ir-v0.1.md)、[有限規範カーネル](docs/normative-kernel-v0.1.md)。既存6規則の[検証結果](docs/verification-2026-09-15.md)、T01〜T03の[検証結果](docs/verification-t01-t03-2026-09-15.md)、T04の[検証結果](docs/verification-t04-2026-09-15.md)、T05の[検証結果](docs/verification-t05-2026-09-15.md)、T03.1の[検証結果](docs/verification-t03.1-2026-09-15.md)、T06の[検証結果](docs/verification-t06-2026-09-15.md)、T07の[検証結果](docs/verification-t07-2026-09-16.md)、T08の[検証結果](docs/verification-t08-2026-09-16.md)に実行記録と信頼範囲がある。T08反映後の全suite 301件と`compileall`が合格している。原文packageの新規公開先は原子的な非上書きを使えるWSLのLinux filesystemとし、`/mnt/c`は安全側に`UNSUPPORTED`で停止する。
+仕様は [kernel-v0.1](docs/kernel-v0.1.md)、[改定差分](docs/diff-v0.1.md)、[到達可能性](docs/reachability-v0.1.md)、[段階別到達可能性](docs/staged-reachability-v0.1.md)、[原文package](docs/source-package-v0.1.md)、[手書き解釈IR](docs/interpretation-ir-v0.1.md)、[有限規範カーネル](docs/normative-kernel-v0.1.md)、[有限手続・時間カーネル](docs/procedure-time-kernel-v0.1.md)。既存6規則の[検証結果](docs/verification-2026-09-15.md)、T01〜T08の各検証記録に加え、[T09](docs/verification-t09-2026-09-16.md)と[T10](docs/verification-t10-2026-09-16.md)に実行記録と信頼範囲がある。T10反映後の全suite 358件と`compileall`が合格している。原文packageの新規公開先は原子的な非上書きを使えるWSLのLinux filesystemとし、`/mnt/c`は安全側に`UNSUPPORTED`で停止する。
 
-有限モデルを直接書く`authored_core`経路に加え、手書き解釈を外側packageで原文・review・scope期待へ結び付ける`interpreted_source`経路を実装した。ただし、保存例の意味対応は開発fixtureのhost goldであり、自然文の正しい読み方や法的妥当性は未検証。旧`reachability`は非到達理由を一つにまとめたまま互換維持し、新しい`reachability-staged`がguard、facts、constraints、overrideを分ける。後者も一般の論理矛盾や正しい法的scopeを自動認定しない。手書きの架空モデルに対する時間なしの義務・禁止・明示的許可は別profileで実装したが、原文・review chainからの規範変換、規範の優先・例外、期限、イベント列、単位計算、一般の法的推論、LLM候補生成、自動意味lint、SAT高速化、画面は未実装。検査結果は指定した有限範囲と照会についてのもので、カーネルの健全性を機械証明したという意味でもない。
+有限モデルを直接書く`authored_core`経路に加え、手書き解釈を外側packageで原文・review・scope期待へ結び付ける`interpreted_source`経路を実装した。ただし、保存例の意味対応は開発fixtureのhost goldであり、自然文の正しい読み方や法的妥当性は未検証。旧`reachability`は非到達理由を一つにまとめたまま互換維持し、新しい`reachability-staged`がguard、facts、constraints、overrideを分ける。手書きの時間なし規範と、有限候補時刻による手続・期限は別profileで実装した。T10は原文・candidate・review・model・certificateの整合を検査する手作業bindingであり、意味的loweringの証明ではない。一般の暦、反復event、規範の優先・例外、権限・裁量、一般の法的推論、LLM候補生成、自動意味lint、SAT高速化、画面は未実装。検査結果は指定した有限範囲と照会についてのもので、カーネルの健全性を機械証明したという意味でもない。
 
 ## 育てる二つの柱と記録
 

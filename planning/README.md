@@ -1,13 +1,13 @@
 # 自前検証エンジンとLLM形式化基盤の開発計画
 
 作成: 2026-09-14
-状態: **全体の計画案 v0.1。2026-09-16までに限定カーネル、20規則教材、改定差分、段階別到達可能性診断、原文package、最小の手書き解釈IRとCore変換、T06固定合成ベンチマーク、T07刑法41条の限定的な手書き解釈pack、T08有限規範カーネルを実装。JSON Schemaファイル、一般の意味lint、LLM接続は未実装。**
+状態: **全体の計画案 v0.1。2026-09-16までにT01〜T10とT03.1を各限定profileで実装し、有限手続・時間カーネルと刑事訴訟法203条から205条の暫定数値期限packまで到達。JSON Schemaファイル、一般の意味lint、LLM接続、法律専門家レビューは未実装。**
 
 今回の実装範囲は [finite-decisions/1](../docs/kernel-v0.1.md)、[手書き解釈IR v0.1](../docs/interpretation-ir-v0.1.md)、[段階別到達可能性 v0.1](../docs/staged-reachability-v0.1.md)、[有限規範カーネル v0.1](../docs/normative-kernel-v0.1.md)を、確認結果は[基礎検証](../docs/verification-2026-09-15.md)、[T05検証](../docs/verification-t05-2026-09-15.md)、[T03.1検証](../docs/verification-t03.1-2026-09-15.md)、[T06検証](../docs/verification-t06-2026-09-15.md)、[T07検証](../docs/verification-t07-2026-09-16.md)、[T08検証](../docs/verification-t08-2026-09-16.md)を参照する。以下の将来機能を全て実装したわけではない。
 
 ## 次に進める計画（2026-09-16）
 
-ユーザーの希望に合わせ、6→20→50→100規則の架空教材から、刑法の最小論点、時間を扱う架空手続、刑事訴訟法の条文群へ進む[段階拡張計画](legal-scale-roadmap.md)を追加した。[作業チケット](legal-scale-tasks.md)のT01〜T08とT03.1は限定profileで完了した。T06は合成workloadの容量測定であり、実領域の50/100規則packや法的正しさの検査ではない。T07は刑法41条の1 source unitを1規則・12状況へ接続した開発fixtureで、`manual_fixture_review`のため`PROVISIONAL`である。T08は原文chainへ未接続の`authored_normative_core`を対象に、時間なしの義務・禁止・明示的許可を実装した。次はT09で架空手続の有限イベント列と時間を設計する。[引継ぎ文](sol-handoff.md)を使える。
+ユーザーの希望に合わせ、6→20→50→100規則の架空教材から、刑法の最小論点、時間を扱う架空手続、刑事訴訟法の条文群へ進む[段階拡張計画](legal-scale-roadmap.md)を追加した。[作業チケット](legal-scale-tasks.md)のT01〜T10とT03.1は限定profileで完了した。T06は合成workloadの容量測定、T07は刑法41条のPROVISIONALな開発fixture、T08は時間なし規範、T09は有限手続・時間、T10は刑事訴訟法203条から205条のPROVISIONALな標準数値期限packである。次はT11で刑法43条・44条等から一つの狭い論点を選ぶ。[引継ぎ文](sol-handoff.md)を使える。
 
 この文書の全体方針を引き継ぎ、具体的な着手順には段階拡張計画を使う。
 

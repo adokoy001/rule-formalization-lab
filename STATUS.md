@@ -12,7 +12,7 @@
 
 ## できていること
 
-**有限決定カーネルと有限規範カーネルを自前実装し、手書きの架空規約を実際に検査できる。**
+**有限決定・有限規範・有限手続時間の各カーネルを自前実装し、手書きモデルを実際に検査できる。**
 
 - Python標準ライブラリだけの入力検査・全列挙器・独立証拠検査器・CLI。
 - Bool、有限Enum、範囲付き整数、比較とBoolean式。
@@ -34,7 +34,7 @@
 - 段階別到達可能性診断 v0.1。宣言全域でguard、guard+facts、guard+constraints、enabled、effectiveを分け、facts×constraintsの4cell、各最初のwitness、限定的な整数範囲hintを独立checkerで再構成する。旧reachability v0.1は互換維持。
 - T05の外部hash付きscope expectationsをCore/scope/全rule分母へ結び、`expected_in_scope`、`expected_inactive`、`unspecified`と到達結果を照合する。常時抑止、期待外・未指定の非到達、stale入力を情報扱いへ落とさない。
 - Club20の第19・20条と同文のT04/T05 fixtureと段階別証拠を保存。52状況でR19はguard/enabled/effective 26、R20は0で、host期待との一致によりattention 0。既存会員規約104状況の段階別証拠も保存した。
-- T08反映後の全suite 301件と`compileall`が合格。段階件数・witness・4cell・期待・hash・証拠改ざん、旧形式混入、空background、上限、CLI終了コード、刑法41条の境界に加え、規範の量化順・三者衝突・permission・atomic保存を回帰検査する。
+- T10反映後の全suite 358件と`compileall`が合格。従来の決定・原文・解釈・規範・ベンチマークに加え、時間境界、観測終了、法源binding、期限起算点、代替行為、改ざんを回帰検査する。
 - T06固定合成ベンチマーク。13 Bool・8,192状況、50/100規則、guard 1/8・7/8、background 1・1/8の8 scenarioとrevision、局所/union衝突・override復活sentinelをconfig/generator/manifest/hash付きで保存した。
 - 4検査経路をfresh subprocessで測るharnessと正式reportを保存。静的32経路は23件が独立checkerまで`VERIFIED`、9件が証拠8 MiBで`LIMIT_REACHED`。固定100規則・10出力familyではcheck 5,661/5,662、diff 3,172/3,173、reachability 5,646/5,647、staged 3,704/3,705が連続する成功/失敗境界だった。
 - 4境界すべてで、最初の`LIMIT_REACHED`がexit 2となり、新しいcertificateを残さず既存targetを変更しないことを実CLIで確認。正式reportのraw/body SHA-256と、16 source binding、10 endpointの現物一致を独立再計算した。
@@ -43,9 +43,13 @@
 - T07の外部anchor付き`verify-interpretation`は`LOWERING_VERIFIED`、host gold 12、coverage selected 1を返す。`manual_fixture_review`は`PROVISIONAL`と明示し、法律専門家の意味承認と区別する。別chainの段階別checkerは12状況、guard/enabled/effective 1/1/1、scope期待一致、attention 0を再構成する。`lt`→`le`と矛盾factsの負例も拒否する。
 - T08有限規範カーネル`finite-norms/1`。有限状況とBoolean行動候補を分け、義務・禁止を同時に守れる候補、背景だけの行動不能、明示的許可の行使・非行使候補を全列挙する。producerをimportしないcheckerが全traceと集計を再構成する。
 - T08架空fixtureは全8状況、admitted 4、各8行動候補。対象外4、背景不能2、規範上の履行不能1、履行可能1を区別し、`P_C`のusable/nonexercise witnessを各1件保存した。model/certificateの外部hash付き再検査は`VERIFIED`、注意対象ありのexit 1。
-- 未知の権限・裁量・期限等は`UNSUPPORTED`とし、既存規範へ読み替えない。既存T06 report checkerも外部hash付きで`VERIFIED`を維持した。
+- T09有限手続・時間カーネル`finite-procedure-time/1`。最大8個の一回限りslot、`(tick, phase)`、排他的観測終了、包含期限、禁止窓、any-of target、strict/non-strict先後を全列挙し、producer非依存checkerが全traceを再構成する。
+- T09架空申請fixtureは16 context。履行可能10、規範不能3、背景不能1、未確定2を分け、期限直前・一致・直後、異なる起算点、同時刻、部分禁止、観測終了前・一致・後を固定した。certificate `4d034bb6...bca7`は外部anchor付き`VERIFIED`、注意対象ありのexit 1。
+- T10刑事訴訟法限定pack。現行施行版の55条・203条から206条を5 source unitとして保存し、203条の48時間、205条の受領後24時間と拘束後72時間を13 contextで別々に診断する。公訴提起は勾留請求とのany-of、送致手続と受領は別eventである。
+- T10 binding checkerは全文quote、unit ID、coverage全5件、task/candidate/review、model、certificateを独立再構成し、外部anchor付き`MANUAL_MODEL_BINDING_VERIFIED`を返す。reviewは`manual_fixture_review` / `provisional: true`で、semantic loweringと法的結論はfalseである。
+- 206条事情主張は数値超過を自動延長せず、釈放規定のtriggerと実際の釈放観測も別診断にした。未知の権限・裁量・一般暦等は既存意味へ読み替えない。T06 report checkerも外部hash付きで`VERIFIED`を維持した。
 
-[使い方](README.md)、[基礎仕様](docs/kernel-v0.1.md)、[差分仕様](docs/diff-v0.1.md)、[到達可能性仕様](docs/reachability-v0.1.md)、[段階別到達可能性仕様](docs/staged-reachability-v0.1.md)、[原文package仕様](docs/source-package-v0.1.md)、[手書き解釈IR仕様](docs/interpretation-ir-v0.1.md)、[有限規範カーネル仕様](docs/normative-kernel-v0.1.md)、[T01〜T03の実行結果](docs/verification-t01-t03-2026-09-15.md)、[T04の実行結果](docs/verification-t04-2026-09-15.md)、[T05の実行結果](docs/verification-t05-2026-09-15.md)、[T03.1の実行結果](docs/verification-t03.1-2026-09-15.md)、[T06の実行結果](docs/verification-t06-2026-09-15.md)、[T07の実行結果](docs/verification-t07-2026-09-16.md)、[T08の実行結果](docs/verification-t08-2026-09-16.md)、[本日の日誌](devlog/2026-09-16.md)から確認できる。
+[使い方](README.md)、[有限手続・時間仕様](docs/procedure-time-kernel-v0.1.md)、[T09検証記録](docs/verification-t09-2026-09-16.md)、[T10検証記録](docs/verification-t10-2026-09-16.md)、[T10法源確認](research/2026-09-16-criminal-procedure-t10-source-review.md)、従来の各仕様・検証記録、[本日の日誌](devlog/2026-09-16.md)から確認できる。
 
 調査28項目・自前エンジンとLLMの計画・24課題台帳も保存済み。
 
@@ -54,7 +58,7 @@
 - 自然文からの自動形式化、LLM接続、一般の意味lint、JSON Schema規格のスキーマファイル、署名付きのreviewer認証。
 - 手書き解釈IRはdecisionの小さな部分だけ。T07の刑法41条reviewも開発fixture作者によるPROVISIONALな記録である。別のT08カーネルは手書き規範だけを受け取り、義務・禁止・許可を原文package、candidate、review、scope expectationsから変換する経路はない。複数候補、部分source unitの独立レビュー、実法令の専門家レビューも未対応。
 - e-Gov全文の全条項棚卸し、号・表・図・数式・引用構造を含む抽出profile、source unit間の改版対応。XML本文自身によるrevision IDの証明、署名・第三者timestamp。
-- 規範の優先順位・例外、期限・有限イベント列、主体・対象・時点、実際の違反・救済・権限・裁量、算術と単位、規範モデルの改定差分。
+- 規範の優先順位・例外、反復event、open-world観測、暦・休日・単位変換、一般の主体・対象、実際の違反・救済・権限・裁量、規範・手続モデルの改定差分。T09/T10は一回限りslotと有限候補時刻に限定する。
 - 段階別診断は単純な原子整数比較以外の一般的な論理矛盾・範囲外理由、最小原因、修正案を判定しない。`expected_inactive`の正しさとT05 source/review chainは別のホストレビュー・checkerに依存する。
 - T06測定CLIはreport出力pathと入力pathの同一性を拒否せず、長時間run中の入力変更をsnapshotまたは開始前後hashで排除しない。正式runは分離pathを使い、完了後のbinding一致を確認したが、実行中ずっと不変だったことまでは証明しない。report checkerは測定時hashを現在の同一source pathへ照合するため、後続の正当なsource変更でも歴史的reportがstaleになる。測定時source snapshotとcurrent-source状態の分離は未実装。
 - 自前SATによる高速化、CNF変換、画面、カーネルの機械証明。
@@ -63,15 +67,15 @@
 
 現在の`finite-decisions/1`系の上限はモデル1 MiB・証拠8 MiB・全Cartesian積10,000状況。10,000は列挙のハード上限であり、処理可能件数の保証ではない。T06の固定100規則・10出力familyでは証拠8 MiBが先に効き、checkは5,661、diffは3,172、reachabilityは5,646、stagedは3,704が最後の成功だった。次の1 contextでは各経路が`LIMIT_REACHED`になった。同じ8,192状況でも静的matrixは密度とbackgroundにより23/32経路が完了、9/32が上限到達となった。この値は合成family固有で、一般上限ではない。
 
-`finite-norms/1`にもモデル1 MiB・証拠8 MiB・状況10,000の上限があり、行動割当4,096、列挙前の状況×行動候補100,000組を追加上限とする。T08 fixtureは8状況、各8行動候補の64組（admitted状況では32組）で、この境界性能を測ったものではない。
+`finite-norms/1`にもモデル1 MiB・証拠8 MiB・状況10,000の上限があり、行動割当4,096、列挙前の状況×行動候補100,000組を追加上限とする。`finite-procedure-time/1`はモデル1 MiB・証拠8 MiB、slot 8、context 10,000、1 contextのtrace 4,096、context×trace 100,000を上限とする。T08〜T10の保存fixtureは性能上限を測ったものではない。
 
 ## 次の小さな一歩
 
-[段階拡張計画](planning/legal-scale-roadmap.md)のT01〜T08とT03.1を各限定profileで完成した。次はT09で、実法令へ進む前に、架空の申請・受領・審査・決定・通知を小さな有限イベント列として定義する。起算点、順序、同時刻、期限の開閉境界、観測終了を明示し、期限前の未観測を違反へ決めない例を固定する。
+[段階拡張計画](planning/legal-scale-roadmap.md)のT01〜T10とT03.1を、それぞれの限定profileで完成した。次はT11で、刑法43条・44条等から一つの狭い論点を選ぶ。先に裁量として許される選択肢、条件付き効果、各則参照、事実認定を入力前提にする範囲を仕様化し、単純なtrue/false衝突へ押し込まない。
 
-T08の時間なし規範profileを黙って拡張せず、時間の意味と証拠形式を新しい版又は別profileとして先に仕様化する。T06で証拠bytesが先に制約になる固定例を確認したため、全traceを保持できる小scopeから始める。T12の省サイズ証拠、LLM、SAT高速化は必要性を測ってから追加する。
+T10は刑事訴訟法203条から205条の標準数値期限だけを扱う`manual_fixture_review`である。204条経路、55条の一般暦、56条・規則66条等の延長、206条の裁判官判断、個別事件は未解決のまま残す。将来revision `323AC0000000131_20270331_507AC0000000039`が施行されたらpackをstaleにし、source・coverage・review・bindingを再作成する。
 
-[刑法41条のT07 fixture](examples/interpretations/penal-code-41/README.md)の法的意味は引き続きPROVISIONALである。[T08架空規範fixture](examples/norms/t08-three-way/README.md)は自然文との意味対応をcheckerが検査するpackではない。刑事訴訟法の限定手続へ進むのは、T09で時間・観測境界を架空例に固定した後とする。[次段階への引継ぎ](planning/sol-handoff.md)はT09開始用に更新した。
+[刑法41条T07](examples/interpretations/penal-code-41/README.md)と[T10刑事手続pack](examples/procedures/t10-criminal-procedure-203-205/README.md)はいずれも法律専門家未確認のPROVISIONALな開発fixtureである。[次段階への引継ぎ](planning/sol-handoff.md)はT11の論点選定と意味論設計用に更新した。
 
 ## 関連資料
 

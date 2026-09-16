@@ -1,6 +1,6 @@
 # 既知課題と受入条件
 
-状態: **限定profileで一部の対策を実装・テスト済み。24課題全体は未完了。** 2026-09-16時点の対応と残る範囲は[基礎検証](../docs/verification-2026-09-15.md)、[T01〜T03検証](../docs/verification-t01-t03-2026-09-15.md)、[T04原文package検証](../docs/verification-t04-2026-09-15.md)、[T05手書き解釈IR契約](../docs/interpretation-ir-v0.1.md)、[T03.1段階別到達可能性仕様](../docs/staged-reachability-v0.1.md)と[検証記録](../docs/verification-t03.1-2026-09-15.md)、[T06合成ベンチマーク検証](../docs/verification-t06-2026-09-15.md)、[T07刑法41条pack検証](../docs/verification-t07-2026-09-16.md)、[T08有限規範仕様](../docs/normative-kernel-v0.1.md)と[検証記録](../docs/verification-t08-2026-09-16.md)にある。この台帳は全体計画の課題と合格条件を定める。
+状態: **限定profileで一部の対策を実装・テスト済み。24課題全体は未完了。** 2026-09-16時点の対応と残る範囲は[基礎検証](../docs/verification-2026-09-15.md)、[T01〜T03検証](../docs/verification-t01-t03-2026-09-15.md)、[T04原文package検証](../docs/verification-t04-2026-09-15.md)、[T05手書き解釈IR契約](../docs/interpretation-ir-v0.1.md)、[T03.1段階別到達可能性仕様](../docs/staged-reachability-v0.1.md)と[検証記録](../docs/verification-t03.1-2026-09-15.md)、[T06合成ベンチマーク検証](../docs/verification-t06-2026-09-15.md)、[T07刑法41条pack検証](../docs/verification-t07-2026-09-16.md)、[T08有限規範仕様](../docs/normative-kernel-v0.1.md)と[検証記録](../docs/verification-t08-2026-09-16.md)、[T09有限手続・時間仕様](../docs/procedure-time-kernel-v0.1.md)と[検証記録](../docs/verification-t09-2026-09-16.md)、[T10検証記録](../docs/verification-t10-2026-09-16.md)にある。この台帳は全体計画の課題と合格条件を定める。
 
 分類:
 
@@ -85,6 +85,14 @@ candidate、review、scope expectationsへ結ばれていない。permissionは�
 優先関係・例外・権限・裁量を扱わない。主体、対象、行動順序、時間、期限、観測終了、
 実際の履行・違反・救済も未実装である。checkerとproducerはmodel validator、
 canonical JSON/hash、Python処理系、標準ライブラリ、仕様理解を共有し、機械証明済みではない。
+
+### K04・K12〜K14・K16・K18・K19のT09/T10現在地
+
+T09では、有限event slot、排他的観測終了、包含期限、部分禁止を別profileへ実装した。期限前・期限座標・期限後、同tickのphase差、起算点欠落、時刻未確定、背景不能、規範不能を別statusにした。部分禁止の終了後に遵守候補が残る例、branch欠落・複製・順序・集計・witness・境界比較変異、上限とatomic保存をproducer非依存checkerで固定した。これによりK04、K12〜K14、K16、K18、K19の有限fixture部分を`tested`とする。
+
+T10では、203条の48時間と205条の24/72時間を別normにし、送致と受領、代替行為、release triggerとrelease観測、数値超過と206条評価未確定を分けた。法源5単位、全文quote、coverage、暫定review、model、certificateの改ざんに加え、受領起点の誤置換、期限片方の削除、206条自動延長の変異を拒否した。
+
+残る範囲: 候補外の連続時間、反復event、open-world観測、一般暦・休日・単位変換、期間延長、優先関係、救済、権限・裁量は未対応である。T10の意味対応は開発fixture作者の手作業reviewで、法律専門家の確認やsemantic loweringの証明ではない。checkerとproducerはvalidator、canonical JSON/hash、Python処理系、仕様理解を共有し、機械証明済みではない。公開checker/CLIは不正入力を構造化拒否するが、内部のbinding producer直接APIは完全なschema validatorではなく、構造不正の直接呼出しで`KeyError`になり得る。
 
 ## 完了を判定する記録
 

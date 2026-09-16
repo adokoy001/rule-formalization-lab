@@ -64,3 +64,25 @@ python3 -m rulekernel source-fetch-egov \
 ```
 
 このsnapshotは条文の保存・構造抽出まで。T05で解釈IRとCoreを結ぶ一般経路は作ったが、刑法41条の手書き解釈と年齢条件の検査はT07で行う。
+
+
+## 刑事訴訟法55条・203条から206条
+
+`criminal-procedure-55-203-206/`には、e-Gov法令API v2から2026-09-16に取得した、
+2026-08-13施行revision `323AC0000000131_20260813_508AC0000000067`のXMLとmetadataを保存した。
+55条、203条、204条、205条、206条をArticle単位の5 source unitとして抽出する。204条は206条の
+「前三条」の参照範囲を固定するために保存し、T10の最初の意味モデルでは`out_of_scope`とする。
+
+```bash
+python3 -m rulekernel verify-source \
+  examples/sources/criminal-procedure-55-203-206/source-spec.json \
+  examples/sources/criminal-procedure-55-203-206/bundle \
+  --expected-bundle-sha256 6c8510b9c9022c6d4974bd1cc00fffdcd85b1ca4547f1027c644b68c5dc9a7fe \
+  --json
+```
+
+offline再検査はsource unit 5、未解決reference 5、`VERIFIED`を返す。T10では55条・203条・205条を
+部分採用し、204条を対象外、206条の評価を未解決として保持する。これは条文の保存・抽出の完全性と
+限定モデルへのbindingを検査するためのsnapshotであり、条文全体の形式化や法的解釈の正しさを
+証明しない。調査範囲と将来revisionによるstale条件は
+[T10公式原文確認](../../research/2026-09-16-criminal-procedure-t10-source-review.md)にある。
